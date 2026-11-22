@@ -12,9 +12,11 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Tasks: adding, listing, changing and deleting them. A task needs a title that is not blank, and a status. A new
- * task starts {@link TaskStatus#PENDING}. A task that no longer exists, deleted in another copy of the app that has
- * the same database open, is refused by every change with a message saying so, never an error.
+ * Tasks: adding, listing, changing and deleting them. A task needs a title that is not blank, and a status. The title
+ * and description are trimmed, and kept within {@link Task#MAX_TITLE_CHARACTERS} and
+ * {@link Task#MAX_DESCRIPTION_CHARACTERS}. A new task starts {@link TaskStatus#PENDING}. A task that no longer
+ * exists, deleted in another copy of the app that has the same database open, is refused by every change with a
+ * message saying so, never an error.
  *
  * <p>Each method is one transaction: a change the app will not make throws {@link Refused} and saves nothing of it.
  * The tasks returned are no longer attached to the database; change one through this service, never by its setters.
@@ -61,10 +63,10 @@ public class TaskService {
     /**
      * Adds a task, {@link TaskStatus#PENDING} to begin with.
      *
-     * @param title what is to be done; not blank
-     * @param description more about it; {@code null} or blank for none
+     * @param title what is to be done; not blank, and trimmed
+     * @param description more about it, trimmed; {@code null} or blank for none
      * @return the task as saved, with its id and times
-     * @throws Refused if the title is blank
+     * @throws Refused if the title is blank, or the title or the description is too long
      */
     @Transactional
     public Task create(@Nullable String title, @Nullable String description) {
@@ -81,11 +83,12 @@ public class TaskService {
      * Replaces a task's title, description and status at once, as the edit form saves them.
      *
      * @param taskId the task's id
-     * @param title what is to be done; not blank
-     * @param description more about it; {@code null} or blank for none
+     * @param title what is to be done; not blank, and trimmed
+     * @param description more about it, trimmed; {@code null} or blank for none
      * @param status how far it has got
      * @return the task as saved
-     * @throws Refused if no task is chosen, the task no longer exists, the title is blank or there is no status
+     * @throws Refused if no task is chosen, the task no longer exists, the title is blank, the title or the
+     *         description is too long, or there is no status
      */
     @Transactional
     public Task update(@Nullable UUID taskId, @Nullable String title, @Nullable String description,
@@ -124,19 +127,40 @@ public class TaskService {
     }
 
     /**
-     * Sets the task's title and description, refusing a blank title.
+     * Sets the task's title and description, trimmed, refusing a blank title and a text over its limit. The limits
+     * are counted after trimming, so spaces typed around a text never push it over.
      *
      * @param task the task to set them on
      * @param title what is to be done
      * @param description more about it; {@code null} for none
-     * @throws Refused if the title is blank
+     * @throws Refused if the title is blank, or the title or the description is too long
      */
     private static void set(Task task, @Nullable String title, @Nullable String description) {
-        if (title == null || title.isBlank()) {
+        String trimmedTitle = trimmed(title);
+        if (trimmedTitle.isEmpty()) {
             throw new Refused("A task needs a title, such as \"Submit the OEL report\".");
         }
-        task.setTitle(title);
-        task.setDescription(description == null ? "" : description);
+        if (trimmedTitle.length() > Task.MAX_TITLE_CHARACTERS) {
+            throw new Refused("A title can be at most " + Task.MAX_TITLE_CHARACTERS + " characters; this one has "
+                    + trimmedTitle.length() + ".");
+        }
+        String trimmedDescription = trimmed(description);
+        if (trimmedDescription.length() > Task.MAX_DESCRIPTION_CHARACTERS) {
+            throw new Refused("A description can be at most " + Task.MAX_DESCRIPTION_CHARACTERS
+                    + " characters; this one has " + trimmedDescription.length() + ".");
+        }
+        task.setTitle(trimmedTitle);
+        task.setDescription(trimmedDescription);
+    }
+
+    /**
+     * The text without the spaces, tabs and line breaks around it.
+     *
+     * @param text the text as typed; {@code null} for none
+     * @return the text trimmed, empty for none
+     */
+    private static String trimmed(@Nullable String text) {
+        return text == null ? "" : text.strip();
     }
 
     /**
