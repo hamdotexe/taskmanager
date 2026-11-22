@@ -101,6 +101,23 @@ public class TaskService {
     }
 
     /**
+     * Moves a task to another status, as the list does without opening the edit form. Its title and description stay
+     * as they are.
+     *
+     * @param taskId the task's id
+     * @param status how far it has got now
+     * @return the task as saved
+     * @throws Refused if no task is chosen, the task no longer exists, or there is no status
+     */
+    @Transactional
+    public Task changeStatus(@Nullable UUID taskId, @Nullable TaskStatus status) {
+        Task task = find(taskId);
+        task.setStatus(required(status));
+        task.setUpdatedAt(Instant.now());
+        return task;
+    }
+
+    /**
      * Deletes a task.
      *
      * @param taskId the task's id

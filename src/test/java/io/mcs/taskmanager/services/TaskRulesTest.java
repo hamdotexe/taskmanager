@@ -122,6 +122,62 @@ class TaskRulesTest extends DatabaseTestBase {
     }
 
     /**
+     * A status changed from the list moves the task on, and back, leaving its title and description alone.
+     */
+    @Test
+    void aStatusIsChangedOnItsOwn() {
+        UUID taskId = taskService.create("Record the demo", "Five minutes").getId();
+        Task before = taskService.get(taskId);
+
+        assertThat(taskService.changeStatus(taskId, TaskStatus.IN_PROGRESS).getStatus())
+                .isEqualTo(TaskStatus.IN_PROGRESS);
+        taskService.changeStatus(taskId, TaskStatus.COMPLETED);
+
+        Task saved = taskService.get(taskId);
+        assertThat(saved.getStatus()).isEqualTo(TaskStatus.COMPLETED);
+        assertThat(saved.getTitle()).isEqualTo("Record the demo");
+        assertThat(saved.getDescription()).isEqualTo("Five minutes");
+        assertThat(saved.getUpdatedAt()).isAfterOrEqualTo(before.getUpdatedAt());
+
+        taskService.changeStatus(taskId, TaskStatus.PENDING);
+        assertThat(taskService.get(taskId).getStatus()).isEqualTo(TaskStatus.PENDING);
+    }
+
+    /**
+     * A status change needs a status.
+     */
+    @Test
+    void aStatusChangeWithNoStatusIsRefused() {
+        UUID taskId = taskService.create("Print the report", "").getId();
+
+        assertThatExceptionOfType(Refused.class)
+                .isThrownBy(() -> taskService.changeStatus(taskId, null))
+                .withMessage("A task needs a status: Pending, In Progress or Completed.");
+        assertThat(taskService.get(taskId).getStatus()).isEqualTo(TaskStatus.PENDING);
+    }
+
+    /**
+     * Changing the status of, deleting or opening a task that no longer exists is refused with a plain message.
+     */
+    @Test
+    void aMissingTaskIsRefusedByEveryChange() {
+        UUID taskId = taskService.create("Already done", "").getId();
+        taskService.delete(taskId);
+        String gone = "This task no longer exists: it may have been deleted in another copy of the Task Manager.";
+
+        assertThatExceptionOfType(Refused.class)
+                .isThrownBy(() -> taskService.changeStatus(taskId, TaskStatus.COMPLETED))
+                .withMessage(gone);
+        assertThatExceptionOfType(Refused.class)
+                .isThrownBy(() -> taskService.delete(taskId))
+                .withMessage(gone);
+        assertThatExceptionOfType(Refused.class)
+                .isThrownBy(() -> taskService.get(taskId))
+                .withMessage(gone);
+        assertThat(taskService.list()).isEmpty();
+    }
+
+    /**
      * A change with no task chosen is refused with a message, not an error.
      */
     @Test
