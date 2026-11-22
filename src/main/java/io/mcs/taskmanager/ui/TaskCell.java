@@ -89,6 +89,9 @@ final class TaskCell extends ListCell<Task> {
                 Ui.button("Edit", () -> edit(), "secondary", "size30"),
                 Ui.button("Delete", () -> delete(), "quiet-danger", "size30")), MainWindowController.ACTIONS_WIDTH);
         actions.getStyleClass().add("row-actions");
+        // Tab goes from the list to the next control, never into every row's buttons; Enter and Delete stand in
+        status.setFocusTraversable(false);
+        actions.getChildren().forEach(button -> button.setFocusTraversable(false));
 
         row = new HBox(words, statusColumn, when, actions);
         row.getStyleClass().add("task-row");
