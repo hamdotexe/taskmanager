@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Task Manager",
+            "request": "launch",
+            "mainClass": "io.mcs.taskmanager.TaskManagerApplication",
+            "projectName": "taskmanager",
+            "javaExec": "C:\\Program Files\\Java\\jdk-25\\bin\\java.exe",
+            "vmArgs": "--enable-native-access=ALL-UNNAMED",
+            "console": "internalConsole"
+        }
+    ]
+}

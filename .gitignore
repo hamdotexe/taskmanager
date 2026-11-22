@@ -1,0 +1,21 @@
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# the local database, never part of the source
+*.db
+*.db-shm
+*.db-wal
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### Eclipse / VS Code Java ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+bin/
