@@ -1,5 +1,10 @@
 # Task Manager
 
+Authors: 
+Hamza Rasool - SE 30 C
+Abdullah Khan - SE 30 C
+
+
 **A desktop to-do list for Windows.** Each task has a title, a description and a status: Pending, In Progress or
 Completed. Tasks are added, listed, changed and deleted in one window, and kept in a SQLite file on this computer, so
 they are still there the next time the app opens.
