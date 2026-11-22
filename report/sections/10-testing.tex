@@ -32,7 +32,6 @@ They run with \texttt{./mvnw test}, and \texttt{./mvnw -q test} was run before e
 program, and the screenshots of Section~\ref{sec:functionality} record what it showed. Test case 6 needs two copies of
 the program open on the same database, as explained in Section~\ref{sec:problem}: the first copy opens a task for
 editing, the second deletes it, and the first then saves its change.
-% VERIFY in phase 3: every manual result in the tables is backed by a screenshot or was observed.
 
 \subsection{The brief's test cases}
 
@@ -50,39 +49,39 @@ steps by which each was carried out in the program, and the JUnit test that chec
       & Click \emph{Add task} (or Ctrl+N), type a title and a description, and click \emph{Add task}.
       & The task is added and appears in the list, Pending.
       & \texttt{tc1AValidTaskIsAdded}
-      & JUnit: passed. In the program: \gap{from Fig.~\ref{fig:app-03-task-added}} \\
+      & Passed in JUnit and in the program (Fig.~\ref{fig:app-03-task-added}) \\
     2 & Add a task with an empty title
       & Click \emph{Add task}, leave the title empty (or type only spaces), and click \emph{Add task}.
       & A validation message is shown, and no task is added.
       & \texttt{tc2ATaskWithAnEmptyTitle\-IsRefusedWithAMessage}
-      & JUnit: passed. In the program: \gap{from Fig.~\ref{fig:app-04-empty-title}} \\
+      & Passed in JUnit and in the program (Fig.~\ref{fig:app-04-empty-title}) \\
     3 & View all tasks
       & Add several tasks and give them all three statuses from their status menus.
       & All tasks are displayed, each with its status.
       & \texttt{tc3AllTasksAreListed}
-      & JUnit: passed. In the program: \gap{from Fig.~\ref{fig:app-05-all-tasks}} \\
+      & Passed in JUnit and in the program (Fig.~\ref{fig:app-05-all-tasks}) \\
     4 & View an empty list
       & Start the program on a database with no tasks.
       & An appropriate message is shown in place of the list.
       & \texttt{tc4AnEmptyListIsEmpty}
-      & JUnit: passed. In the program: \gap{from Fig.~\ref{fig:app-01-empty-list}} \\
+      & Passed in JUnit and in the program (Fig.~\ref{fig:app-01-empty-list}) \\
     5 & Update an existing task
       & Click a task's \emph{Edit}, change its title, description and status, and click \emph{Save}.
       & The task's details are updated in the list.
       & \texttt{tc5AnExistingTaskIsUpdated}
-      & JUnit: passed. In the program: \gap{from Fig.~\ref{fig:app-07-task-updated}} \\
+      & Passed in JUnit and in the program (Fig.~\ref{fig:app-07-task-updated}) \\
     6 & Update a non-existing task
       & With two copies of the program open, click a task's \emph{Edit} in the first, delete the task in the second,
         then click \emph{Save} in the first.
       & Handled gracefully: a message says the task no longer exists, the list is refreshed, and no stack trace is
         shown.
       & \texttt{tc6UpdatingANonExisting\-TaskIsRefusedGracefully}
-      & JUnit: passed. In the program: \gap{from Fig.~\ref{fig:app-08-update-missing}} \\
+      & Passed in JUnit and in the program (Fig.~\ref{fig:app-08-update-missing}) \\
     7 & Delete an existing task
       & Click a task's \emph{Delete}, then \emph{Delete task} in the confirmation.
       & The task is removed from the list.
       & \texttt{tc7AnExistingTaskIsDeleted}
-      & JUnit: passed. In the program: \gap{from Fig.~\ref{fig:app-10-task-deleted}} \\
+      & Passed in JUnit and in the program (the deleted task is gone from the list in Fig.~\ref{fig:app-08-update-missing}) \\
     \bottomrule
   \end{tabularx}
 \end{table*}
@@ -205,26 +204,26 @@ brief's six, one row per JUnit test.
 
 The last run of \texttt{./mvnw test} before this report was built ran all 38 tests, and every one passed:
 \begin{lstlisting}[style=terminal]
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.110 s -- in io.mcs.taskmanager.FoundationTest
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.435 s -- in io.mcs.taskmanager.RestartTest
-[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.798 s -- in io.mcs.taskmanager.services.BriefTestCasesTest
-[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.752 s -- in io.mcs.taskmanager.services.SearchAndCountsTest
-[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.528 s -- in io.mcs.taskmanager.services.TaskRulesTest
-[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.234 s -- in io.mcs.taskmanager.TwoCopiesTest
-[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.037 s -- in io.mcs.taskmanager.ui.TaskTextTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.023 s -- in io.mcs.taskmanager.FoundationTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.057 s -- in io.mcs.taskmanager.RestartTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.911 s -- in io.mcs.taskmanager.services.BriefTestCasesTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.810 s -- in io.mcs.taskmanager.services.SearchAndCountsTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.549 s -- in io.mcs.taskmanager.services.TaskRulesTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.239 s -- in io.mcs.taskmanager.TwoCopiesTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in io.mcs.taskmanager.ui.TaskTextTest
 [INFO]
 [INFO] Results:
 [INFO]
 [INFO] Tests run: 38, Failures: 0, Errors: 0, Skipped: 0
 [INFO]
 [INFO] BUILD SUCCESS
-[INFO] Total time:  16.443 s
+[INFO] Total time:  18.474 s
 \end{lstlisting}
 These are the lines of that run that report the tests; Spring's log between them is left out. The whole run, Maven's
-own start and the compilation included, took 16.4 seconds.
+own start and the compilation included, took 18.5 seconds.
 
 \screenshotwide{test-01-junit}
-  {Running the tests with \texttt{./mvnw test}: the totals and BUILD SUCCESS.}
+  {\texttt{./mvnw test} in the IDE's terminal: Tests run: 38, Failures: 0, Errors: 0, Skipped: 0, and BUILD SUCCESS.}
   {Terminal: ./mvnw test with the totals and BUILD SUCCESS}
 
 Two faults were found and fixed while the program was being built, each together with the tests that now cover it:

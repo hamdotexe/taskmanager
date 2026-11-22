@@ -36,11 +36,11 @@ Enter in the title and Ctrl+Enter anywhere in the form), and \emph{Cancel} or Es
 the top of the list, chosen (Fig.~\ref{fig:app-03-task-added}).
 
 \screenshot{app-02-add-form}
-  {The form for a new task, filled in.}
+  {The form for a new task, filled in for a second task.}
   {The add form filled in}
 
 \screenshotwide{app-03-task-added}
-  {The new task in the list (test case 1).}
+  {The first task, ``Task 1'', added to the list (test case 1).}
   {Test case 1: the new task in the list}
 
 A title left empty, or made only of spaces, is refused by the service, and its message is shown in the form under the
@@ -49,7 +49,8 @@ open with what was typed, so the user can correct it. A title over 100 character
 refused the same way, with a message giving the limit and the length typed.
 
 \screenshot{app-04-empty-title}
-  {Saving a task with an empty title is refused with a message (test case 2).}
+  {Saving a task with a description but no title: the form shows ``A task needs a title, such as "Submit the OEL
+   report".'' (test case 2).}
   {Test case 2: the validation message}
 
 \subsection{Viewing all tasks}
@@ -60,7 +61,7 @@ description, the status, when the task was last updated and when it was added, t
 for Completed, and a completed task's title is greyed and struck through.
 
 \screenshotwide{app-05-all-tasks}
-  {Several tasks, in all three statuses, with the count of each (test case 3).}
+  {Three tasks, one in each status; the sidebar counts 1, 1 and 1 (test case 3).}
   {Test case 3: several tasks, all three statuses}
 
 \subsection{Updating a task}
@@ -85,43 +86,42 @@ Task Manager.'', and reads the list again, which no longer has the task (Fig.~\r
 same happens when such a task is opened for editing, deleted or given a new status.
 
 \screenshotwide{app-08-update-missing}
-  {Saving a change to a task that a second copy of the program has deleted: the program says the task no longer
-   exists and refreshes its list (test case 6).}
+  {Saving a change to a task that a second copy of the program has deleted: the red notice says the task no longer
+   exists, and the list, read again, shows the two tasks that remain (test cases 6 and 7).}
   {Test case 6: the message for a task that no longer exists}
 
 \subsection{Deleting a task}
 
 The row's \emph{Delete} button, the Delete key on the chosen row, or \emph{Delete task} in the edit form asks first:
 a dialog titled ``Delete this task?'' says ``“Submit the OEL report” will be deleted for good. This can't be
-undone.'', naming the task, with \emph{Cancel} and \emph{Delete task} buttons (Fig.~\ref{fig:app-09-delete-confirm}). Only \emph{Delete task} deletes it (Fig.~\ref{fig:app-10-task-deleted}).
+undone.'', naming the task, with \emph{Cancel} and \emph{Delete task} buttons (Fig.~\ref{fig:app-09-delete-confirm}). Only \emph{Delete task} deletes it, and the task then disappears from the list, as Fig.~\ref{fig:app-08-update-missing}
+shows for the task deleted in the second copy.
 
 \screenshot{app-09-delete-confirm}
-  {Deleting a task asks for confirmation first.}
+  {The confirmation before ``Task 4'' is deleted.}
   {The delete confirmation}
-
-\screenshotwide{app-10-task-deleted}
-  {The list after the task was deleted (test case 7).}
-  {Test case 7: the list without it}
 
 \subsection{Changing the status from the list}
 
 The status in each row is a button: it opens a menu of the three statuses with the task's own ticked, and choosing
-another moves the task to it at once, without opening the form. The counts in the sidebar follow
-(Fig.~\ref{fig:app-11-status-change}).
+another moves the task to it at once, without opening the form. The counts in the sidebar follow, and the filter for
+the new status lists the task (Fig.~\ref{fig:app-11-status-change}).
 
 \screenshotwide{app-11-status-change}
-  {A task's status changed straight from the list; the counts follow.}
+  {The In Progress filter chosen in the sidebar, listing the task whose status was changed from the list; the counts
+   are 1, 1 and 1.}
   {A status changed from the list, counts updated}
 
 \subsection{Searching and filtering}
 
 Typing in the search field narrows the list, as each character is typed, to the tasks whose title or description
-holds the text, whatever its case; Ctrl+F goes to the field, Esc clears it, and the down arrow moves into the list. Choosing a filter in the sidebar shows
+holds the text, whatever its case (Fig.~\ref{fig:app-12-search-filter}); Ctrl+F goes to the field, Esc clears it, and
+the down arrow moves into the list. Choosing a filter in the sidebar shows
 one status only, and the two combine: the line under the heading then says, for example, ``2 of 5 pending tasks
-match “report”.'' (Fig.~\ref{fig:app-12-search-filter}).
+match “report”.''
 
 \screenshotwide{app-12-search-filter}
-  {The search box and the status filter narrowing the list.}
+  {A search for ``3'' narrowing the list to one of the three tasks.}
   {Search and status filter narrowing the list}
 
 \subsection{Keyboard shortcuts}

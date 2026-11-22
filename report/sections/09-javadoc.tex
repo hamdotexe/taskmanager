@@ -45,8 +45,8 @@ $ ./mvnw javadoc:javadoc
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  3.302 s
-[INFO] Finished at: 2026-11-22T22:50:32+05:00
+[INFO] Total time:  8.281 s
+[INFO] Finished at: 2026-11-22T23:14:13+05:00
 \end{lstlisting}
 
 \screenshotwide{javadoc-01-generate}
@@ -59,14 +59,14 @@ The generated pages were opened from \path{docs/javadoc/apidocs/index.html} in a
 overview lists the seven packages, \texttt{io.mcs.taskmanager} and its \texttt{entities}, \texttt{repositories},
 \texttt{services}, \texttt{shared}, \texttt{ui} and \texttt{ui.kit}, each with the summary from its
 \texttt{package-info.java} (Fig.~\ref{fig:javadoc-02-index}). Each class page lists its fields, constructors and
-methods, private ones included, with their parameters, return values and exceptions, and names the class's authors
+methods, private ones included, with their parameters, return values and exceptions, and names the class's authors.
+The index lists every documented class, constructor, method and field with the first sentence of its comment
 (Fig.~\ref{fig:javadoc-03-class}). The documentation is 71 HTML pages in all, with an index and a search.
-% VERIFY in phase 3: the screenshots show this.
 
 \screenshotwide{javadoc-02-index}
   {The generated documentation's overview page, \texttt{docs/javadoc/apidocs/index.html}, in a browser.}
   {docs/javadoc/apidocs/index.html in a browser}
 
 \screenshotwide{javadoc-03-class}
-  {The task service's page: method details with their parameters and return values.}
+  {The generated index, \texttt{index-all.html}: every documented class and member with its description.}
   {The task service's page in the browser, method details with parameters and returns}

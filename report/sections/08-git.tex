@@ -120,20 +120,20 @@ fix; \texttt{git status} shows the other files then changed, which went into com
 \evidence{04-status-diff-dialog-focus-fix.txt}
   {\texttt{git status} and \texttt{git diff} before the fix for the dialog's focus was committed}
 
-Figures~\ref{fig:git-01-status-diff} to~\ref{fig:git-04-github} show the same workflow in the terminal and on GitHub:
-a change inspected with \texttt{git status} and \texttt{git diff}, then staged, committed and pushed, the whole
-history as a graph, and the commits as GitHub lists them.
-
-\screenshotwide{git-01-status-diff}
-  {\texttt{git status} and \texttt{git diff} on an uncommitted change.}
-  {Terminal: git status and git diff on a real uncommitted change}
+Figures~\ref{fig:git-02-add-commit-push} to~\ref{fig:git-04-github} show the workflow in the terminal and on GitHub.
+In Fig.~\ref{fig:git-02-add-commit-push}, a change to the README (the group's members) and to \texttt{pom.xml} (the
+Spring Boot patch version, 4.1.2 to 4.1.3) is checked with \texttt{git status}, staged with \texttt{git add .}, which
+with only those two files changed stages exactly them, committed and pushed. Fig.~\ref{fig:git-03-log} shows the
+whole history as a graph, and Fig.~\ref{fig:git-04-github} the commits as GitHub lists them. The diffs themselves are
+in the listings above.
 
 \screenshotwide{git-02-add-commit-push}
-  {The same change staged, committed and pushed with \texttt{git add}, \texttt{git commit} and \texttt{git push}.}
+  {A change checked with \texttt{git status} (README.md and pom.xml modified), then staged, committed and pushed
+   with \texttt{git add}, \texttt{git commit} and \texttt{git push} (c1479d6..ae85057).}
   {Terminal: git add, git commit, git push of that change}
 
 \screenshotwide{git-03-log}
-  {The whole history with \texttt{git log --oneline --graph}.}
+  {The whole history with \texttt{git log --oneline --graph}: 22 commits, \texttt{HEAD} at ae85057.}
   {Terminal: \texttt{git log --oneline --graph} of the whole history}
 
 \screenshotwide{git-04-github}

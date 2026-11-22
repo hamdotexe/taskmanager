@@ -28,7 +28,7 @@ $gaps = @($sources | Select-String -Pattern '\\gap\{' | Where-Object { $_.Line -
 # a transcript or source file the report quotes but cannot find prints as a gap too
 $gaps += @($sources | Select-String -Pattern '\\(evidence|source)(?:\[[^\]]*\])?\{([^}]+)\}' | Where-Object {
     $m = $_.Matches[0]
-    $folder = if ($m.Groups[1].Value -eq 'evidence') { '..\..\evidence' } else { '..' }
+    $folder = if ($m.Groups[1].Value -eq 'evidence') { 'evidence' } else { '..' }
     $_.Line -notmatch '^\s*%' -and -not (Test-Path (Join-Path $PSScriptRoot (Join-Path $folder $m.Groups[2].Value)))
 })
 $verify = @($sources | Select-String -Pattern '^\s*%\s*VERIFY')
