@@ -226,7 +226,7 @@ public class MainWindowController {
     }
 
     /**
-     * Shows the tasks and the counts as they are saved now, with a task chosen and scrolled to if it is listed.
+     * Shows the tasks and the counts as they are saved now, with a task chosen if it is listed.
      *
      * @param chosenId the id of the task to choose, or {@code null} for none
      */
@@ -247,7 +247,6 @@ public class MainWindowController {
         for (int index = 0; index < shown.size(); index++) {
             if (shown.get(index).getId().equals(chosenId)) {
                 list.getSelectionModel().select(index);
-                list.scrollTo(index);
                 break;
             }
         }
@@ -421,8 +420,8 @@ public class MainWindowController {
     }
 
     /**
-     * Shows a task just added or saved, chosen in the list. A new task the filter or search would hide clears them,
-     * so what was added is always seen.
+     * Shows a task just added or saved, chosen in the list and scrolled to. A new task the filter or search would
+     * hide clears them, so what was added is always seen.
      *
      * @param taskId the task's id, or {@code null} if nothing was saved
      */
@@ -434,6 +433,10 @@ public class MainWindowController {
             filter = null;
             search.clear();
             render(savedId);
+        }
+        int chosen = list.getSelectionModel().getSelectedIndex();
+        if (chosen >= 0) {
+            list.scrollTo(chosen);
         }
         list.requestFocus();
     }
