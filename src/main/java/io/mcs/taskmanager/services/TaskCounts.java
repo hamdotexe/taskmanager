@@ -9,7 +9,8 @@ import io.mcs.taskmanager.entities.TaskStatus;
  * @param pending how many tasks are not started yet
  * @param inProgress how many are being worked on
  * @param completed how many are done
- * @author hamdotexe
+ * @author Hamza Rasool
+ * @author Abdullah Khan
  */
 public record TaskCounts(long pending, long inProgress, long completed) {
 

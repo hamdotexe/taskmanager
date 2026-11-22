@@ -17,7 +17,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * The rules a task is saved under, beyond the brief's own cases: a title that is not blank, both texts trimmed and
  * within their limits, a status, and a task chosen. A refused change saves nothing of itself.
  *
- * @author hamdotexe
+ * @author Hamza Rasool
+ * @author Abdullah Khan
  */
 class TaskRulesTest extends DatabaseTestBase {
 

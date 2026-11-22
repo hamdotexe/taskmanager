@@ -6,7 +6,8 @@ import java.io.Serial;
  * A change the app will not make, and why, in words the screen shows as they are. Thrown inside a service's
  * transaction, so nothing of the change is saved.
  *
- * @author hamdotexe
+ * @author Hamza Rasool
+ * @author Abdullah Khan
  */
 public class Refused extends RuntimeException {
 

@@ -17,7 +17,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * The seven test cases the lab's brief lists, each against the task service on a real SQLite database, in the brief's
  * order. Every test starts from an empty list.
  *
- * @author hamdotexe
+ * @author Hamza Rasool
+ * @author Abdullah Khan
  */
 class BriefTestCasesTest extends DatabaseTestBase {
 

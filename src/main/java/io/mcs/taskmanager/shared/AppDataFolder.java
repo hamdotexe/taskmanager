@@ -10,7 +10,8 @@ import java.nio.file.Path;
  * {@code %LOCALAPPDATA%\TaskManager}. Local rather than roaming, so the database is never copied around with the
  * user's profile; never beside the program, where the user may not be allowed to write.
  *
- * @author hamdotexe
+ * @author Hamza Rasool
+ * @author Abdullah Khan
  */
 public final class AppDataFolder {
 

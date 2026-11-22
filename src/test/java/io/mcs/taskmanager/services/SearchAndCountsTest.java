@@ -15,7 +15,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Searching the list by title or description, filtering it by status, and counting the tasks in each status, over
  * four tasks: two Pending, one In Progress, one Completed.
  *
- * @author hamdotexe
+ * @author Hamza Rasool
+ * @author Abdullah Khan
  */
 class SearchAndCountsTest extends DatabaseTestBase {
 

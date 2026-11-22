@@ -26,7 +26,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * one copy, and a second Spring context started on the same folder is the other. Each has its own connection to the
  * file, as two running copies of the app do.
  *
- * @author hamdotexe
+ * @author Hamza Rasool
+ * @author Abdullah Khan
  */
 class TwoCopiesTest extends DatabaseTestBase {
 

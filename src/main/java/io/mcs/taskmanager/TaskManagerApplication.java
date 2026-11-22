@@ -7,7 +7,8 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 /**
  * Starts the Task Manager: the class Spring Boot is configured from, and the one the IDE and the Maven wrapper run.
  *
- * @author hamdotexe
+ * @author Hamza Rasool
+ * @author Abdullah Khan
  */
 @SpringBootApplication
 public class TaskManagerApplication {

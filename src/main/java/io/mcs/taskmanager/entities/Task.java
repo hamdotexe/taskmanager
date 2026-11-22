@@ -23,7 +23,8 @@ import java.util.UUID;
  * {@code TaskService}'s, which refuses a task that breaks one with a message the screen shows. The constraints here
  * only stop a task that slipped past the service from reaching the database.
  *
- * @author hamdotexe
+ * @author Hamza Rasool
+ * @author Abdullah Khan
  */
 @Entity
 @Table(name = "tasks")

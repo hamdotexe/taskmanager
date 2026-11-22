@@ -18,7 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tasks are kept in the SQLite file, not in memory: the app is started, given a task and closed, then started again on
  * the same folder, and finds the task as it was left.
  *
- * @author hamdotexe
+ * @author Hamza Rasool
+ * @author Abdullah Khan
  */
 class RestartTest {
 

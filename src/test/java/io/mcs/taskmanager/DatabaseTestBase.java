@@ -16,7 +16,8 @@ import java.nio.file.Path;
  * <p>The context is closed after each class, so its connection lets go of the database file before JUnit deletes the
  * folder: Windows refuses to delete a file that is still open.
  *
- * @author hamdotexe
+ * @author Hamza Rasool
+ * @author Abdullah Khan
  */
 @SpringBootTest
 @DirtiesContext

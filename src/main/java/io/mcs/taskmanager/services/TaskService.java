@@ -22,7 +22,8 @@ import java.util.UUID;
  * <p>Each method is one transaction: a change the app will not make throws {@link Refused} and saves nothing of it.
  * The tasks returned are no longer attached to the database; change one through this service, never by its setters.
  *
- * @author hamdotexe
+ * @author Hamza Rasool
+ * @author Abdullah Khan
  */
 @Service
 public class TaskService {

@@ -13,7 +13,8 @@ import java.util.UUID;
 /**
  * The user's tasks, newest first: all of them, those matching a search, and how many have each status.
  *
- * @author hamdotexe
+ * @author Hamza Rasool
+ * @author Abdullah Khan
  */
 public interface TaskRepository extends JpaRepository<Task, UUID> {
 

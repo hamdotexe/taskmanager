@@ -3,7 +3,8 @@ package io.mcs.taskmanager.entities;
 /**
  * How far a task has got. Every task starts {@link #PENDING}; the user moves it on, or back, as the work goes.
  *
- * @author hamdotexe
+ * @author Hamza Rasool
+ * @author Abdullah Khan
  */
 public enum TaskStatus {
 
