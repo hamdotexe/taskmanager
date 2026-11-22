@@ -18,7 +18,7 @@
 	<properties>
 		<java.version>25</java.version>
 		<javafx.version>27.0.1</javafx.version>
-		<!-- JavaFX loads native libraries; Java 25 warns unless it is allowed -->
+		<!-- JavaFX and the SQLite driver load native libraries; Java 25 warns unless it is allowed -->
 		<native.access>ALL-UNNAMED</native.access>
 	</properties>
 
@@ -40,9 +40,36 @@
 			<version>${javafx.version}</version>
 		</dependency>
 
+		<!-- persistence: Hibernate on a local SQLite file, schema by Flyway -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-community-dialects</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.xerial</groupId>
+			<artifactId>sqlite-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-flyway</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-flyway-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
