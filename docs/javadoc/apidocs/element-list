@@ -1,0 +1,7 @@
+io.mcs.taskmanager
+io.mcs.taskmanager.entities
+io.mcs.taskmanager.repositories
+io.mcs.taskmanager.services
+io.mcs.taskmanager.shared
+io.mcs.taskmanager.ui
+io.mcs.taskmanager.ui.kit

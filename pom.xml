@@ -103,6 +103,27 @@
 					<argLine>--enable-native-access=${native.access}</argLine>
 				</configuration>
 			</plugin>
+			<plugin>
+				<!-- ./mvnw javadoc:javadoc writes the HTML to docs/javadoc/apidocs, committed with the code -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<outputDirectory>${project.basedir}/docs/javadoc</outputDirectory>
+					<doctitle>Task Manager ${project.version}</doctitle>
+					<windowtitle>Task Manager</windowtitle>
+					<bottom>Task Manager: Software Construction, BESE-30, MCS NUST. Hamza Rasool and Abdullah Khan.</bottom>
+					<!-- no date in the pages, so generating them again changes only what the code changed -->
+					<notimestamp>true</notimestamp>
+					<!-- every class, constructor and method, private ones included, each with its authors -->
+					<show>private</show>
+					<author>true</author>
+					<!-- every check the tool has, and a warning fails the build rather than scrolling past -->
+					<doclint>all</doclint>
+					<failOnWarnings>true</failOnWarnings>
+					<!-- the same pages with or without a network: no links fetched from the JDK's site -->
+					<detectJavaApiLink>false</detectJavaApiLink>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

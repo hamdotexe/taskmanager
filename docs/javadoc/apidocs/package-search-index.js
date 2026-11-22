@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html","k":"18"},{"l":"io.mcs.taskmanager"},{"l":"io.mcs.taskmanager.entities"},{"l":"io.mcs.taskmanager.repositories"},{"l":"io.mcs.taskmanager.services"},{"l":"io.mcs.taskmanager.shared"},{"l":"io.mcs.taskmanager.ui"},{"l":"io.mcs.taskmanager.ui.kit"}];updateSearchResults();
