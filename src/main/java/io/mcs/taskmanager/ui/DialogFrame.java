@@ -96,9 +96,12 @@ final class DialogFrame {
     }
 
     /**
-     * Puts the keyboard where the dialog starts: its first field, or the card itself for a question.
+     * Puts the keyboard where the dialog starts: its first field, or the card itself for a question. The layer's
+     * stylesheet is applied first: until then the scroll pane has no skin, so the card is not yet in the window and
+     * could not take the focus.
      */
     void focus() {
+        overlay.applyCss();
         Node first = dialog.firstFocus();
         if (first != null) {
             first.requestFocus();
