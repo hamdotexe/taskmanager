@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -46,6 +47,32 @@ public class TaskService {
     @Transactional(readOnly = true)
     public List<Task> list() {
         return tasks.findAllByOrderByCreatedAtDesc();
+    }
+
+    /**
+     * The tasks whose title or description holds the text, whatever its case, in one status or in all. Every
+     * character typed is matched as it is: {@code %} and {@code _} are not wildcards.
+     *
+     * @param text what to look for, trimmed; {@code null} or blank to match every task
+     * @param status the one status to list, or {@code null} for every status
+     * @return the matching tasks, newest first; empty when none match
+     */
+    @Transactional(readOnly = true)
+    public List<Task> search(@Nullable String text, @Nullable TaskStatus status) {
+        return tasks.search(containing(trimmed(text)), status);
+    }
+
+    /**
+     * How many tasks there are in each status, counted over every task.
+     *
+     * @return the counts; all 0 when there are no tasks
+     */
+    @Transactional(readOnly = true)
+    public TaskCounts count() {
+        return new TaskCounts(
+                tasks.countByStatus(TaskStatus.PENDING),
+                tasks.countByStatus(TaskStatus.IN_PROGRESS),
+                tasks.countByStatus(TaskStatus.COMPLETED));
     }
 
     /**
@@ -178,6 +205,21 @@ public class TaskService {
      */
     private static String trimmed(@Nullable String text) {
         return text == null ? "" : text.strip();
+    }
+
+    /**
+     * A {@code like} pattern matching any text that holds this one, in lower case so the search ignores case. The
+     * pattern's own wildcards, and {@code !} which escapes them, are escaped so each is matched as typed.
+     *
+     * @param text what to look for; empty to match everything
+     * @return the pattern, such as {@code %report%}
+     */
+    private static String containing(String text) {
+        String escaped = text.toLowerCase(Locale.ROOT)
+                .replace("!", "!!")
+                .replace("%", "!%")
+                .replace("_", "!_");
+        return "%" + escaped + "%";
     }
 
     /**
