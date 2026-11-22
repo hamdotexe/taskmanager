@@ -1,0 +1,43 @@
+\section{Introduction}\label{sec:introduction}
+
+The open-ended lab of the Software Construction course asks each group of two students to build a working task
+management (TODO) system in Java, and to build it with the tools software is constructed with in practice: an IDE and
+the JDK to write, run and debug the program, Git and GitHub to record its revisions, and the Javadoc tool to document
+it. The program and the record of how it was made are assessed together.
+
+\subsection{Objective}
+
+The lab brief states two objectives, each tied to a course learning outcome (CLO):
+\begin{itemize}
+  \item \textbf{CLO-5:} independently build a working Java task management system, with recorded Git revisions and
+        generated Javadoc documentation;
+  \item \textbf{CLO-4:} practise and adapt modern tools (IDE, JDK, Git, GitHub and Javadoc) for software construction.
+\end{itemize}
+Table~\ref{tab:clo} shows how the two outcomes map to the programme learning outcomes and how much each one weighs.
+Our own aim was to meet every functional requirement with input validation and clean error handling, and to leave
+evidence for each step of the workflow (the IDE, the Git history, the Javadoc HTML and the test results) that can be
+checked against the repository.
+
+\begin{table}[!t]
+  \caption{CLO mapping of the lab}\label{tab:clo}
+  \centering\footnotesize
+  \begin{tabularx}{\linewidth}{@{}lllXr@{}}
+    \toprule
+    CLO   & PLO   & Level & Learning outcome & Weight \\
+    \midrule
+    CLO-4 & PLO-5 & P-3   & Practise and adapt modern tools for software construction. & 25\% \\
+    CLO-5 & PLO-5 & P-4   & Execute a software construction workflow independently using development,
+                            version-control and documentation tools, producing a working application with recorded
+                            revisions and generated code documentation. & 75\% \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Organisation of the report}
+
+Section~\ref{sec:problem} states the problem and the requirements, and Section~\ref{sec:tools} the tools and the
+environment. Section~\ref{sec:design} explains the design of the program and the reasons for it, and
+Section~\ref{sec:dsa} its data structures and algorithms. Section~\ref{sec:functionality} walks through the program's
+functions with screenshots. Sections~\ref{sec:ide}, \ref{sec:git} and~\ref{sec:javadoc} describe how the IDE, Git and
+Javadoc were used, Section~\ref{sec:testing} gives the test cases with their expected and actual results, and
+Section~\ref{sec:conclusion} concludes.

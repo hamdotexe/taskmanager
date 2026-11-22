@@ -1,0 +1,141 @@
+\section{Design and Architecture}\label{sec:design}
+
+\subsection{Layers}
+
+The program is one Maven module whose code sits under the base package \texttt{io.mcs.taskmanager}, divided by
+responsibility into five packages (Fig.~\ref{fig:layers}), the last of them with a sub-package of its own,
+\texttt{ui.kit}. Each has a \texttt{package-info.java} that says what it
+holds:
+\begin{itemize}
+  \item \texttt{entities}: the task and its status, mapped by Hibernate onto the database table;
+  \item \texttt{repositories}: Spring Data JPA interfaces, which Spring implements when the program starts;
+  \item \texttt{services}: the operations the program offers on tasks, and every rule a change must pass;
+  \item \texttt{ui}: the JavaFX window, made of FXML views, their controllers and a stylesheet;
+  \item \texttt{shared}: what the other packages need but none of them owns, such as where the data folder is.
+\end{itemize}
+One rule holds between the layers: the screens call services, never repositories. The classes are few:
+\begin{itemize}
+  \item \texttt{TaskManagerApplication}, in the base package: the Spring Boot application class, whose
+        \texttt{main} method starts the program;
+  \item \texttt{entities.Task} and \texttt{entities.TaskStatus}: the task and its status (Section~\ref{sec:dsa});
+  \item \texttt{repositories.TaskRepository}: the queries on the \texttt{tasks} table;
+  \item \texttt{services.TaskService}: every operation on tasks; \texttt{services.TaskCounts}: the number of tasks
+        in each status; \texttt{services.Refused}: the exception a refused change throws;
+  \item \texttt{shared.AppDataFolder}: finds, and on the first start makes, the folder the database is kept in;
+  \item \texttt{ui.DesktopApp}: the JavaFX application; \texttt{ui.MainWindowController}: the window, with
+        \texttt{main-window.fxml} and the stylesheet \texttt{taskmanager.css}; \texttt{ui.TaskCell}: one row of the
+        list; \texttt{ui.TaskDialog} and \texttt{ui.DeleteTaskDialog}: the task form and the delete confirmation,
+        shown by \texttt{ui.DialogFrame}; \texttt{ui.TaskText}: the words the screen puts together, such as how a
+        time is written; \texttt{ui.Dialog}, what every dialog has in common; \texttt{ui.StatusLook}, the icon
+        and colour of each status; and \texttt{ui.kit.Ui} and \texttt{ui.kit.Icons}, small helpers that build
+        the controls and draw the icons.
+\end{itemize}
+
+\begin{figure}[!t]
+  \centering
+  \begin{tikzpicture}[
+      node distance=3.5mm and 4mm, >=Latex, font=\footnotesize,
+      layer/.style={draw, rounded corners=2pt, minimum width=48mm, minimum height=8mm, align=center},
+      side/.style={draw, dashed, rounded corners=2pt, text width=21mm, minimum height=8mm, align=center}]
+    \node[layer] (ui) {\texttt{ui}: FXML views, controllers, CSS};
+    \node[layer, below=of ui] (services) {\texttt{services}: operations and rules};
+    \node[layer, below=of services] (repositories) {\texttt{repositories}: Spring Data JPA};
+    \node[layer, below=of repositories] (db) {SQLite file \texttt{taskmanager.db}\\(schema by Flyway)};
+    \node[side, right=of services, yshift=-5.75mm, minimum height=19.5mm] (entities)
+      {\texttt{entities}:\\the task and its status};
+    \node[side, right=of db] (shared) {\texttt{shared}:\\the data folder};
+    \draw[->] (ui) -- node[right] {calls} (services);
+    \draw[->] (services) -- node[right] {calls} (repositories);
+    \draw[->] (repositories) -- node[right] {Hibernate} (db);
+    \draw[->, dashed] (services.east) -- (services.east -| entities.west);
+    \draw[->, dashed] (repositories.east) -- (repositories.east -| entities.west);
+    \draw[->, dashed] (shared) -- (db);
+    \draw[->, dashed] (ui.east) -| (entities.north);
+  \end{tikzpicture}
+  \caption{The layers of the program, in package \texttt{io.mcs.taskmanager}. Screens call services, never
+           repositories; a dashed arrow means ``uses''.}\label{fig:layers}
+\end{figure}
+
+\subsection{Spring under JavaFX}
+
+The program is a JavaFX application running on top of a Spring Boot application context with no web server. The
+main class, \texttt{TaskManagerApplication}, is the Spring Boot application class, but it does not itself extend
+JavaFX's \texttt{Application}: when the program is started from a plain class path, as Maven and the IDE start it, a
+main class that extends \texttt{Application} stops with an error saying that the JavaFX runtime components are
+missing. Its \texttt{main} method therefore hands over to a separate JavaFX application class, \texttt{ui.DesktopApp},
+through \texttt{Application.launch}. JavaFX then calls three of its methods in turn:
+\begin{itemize}
+  \item \texttt{init()} starts Spring, before the window opens, with the data folder from \texttt{AppDataFolder}, so
+        that the database has been found or made and migrated by Flyway by then;
+  \item \texttt{start(Stage)} loads the window's FXML with Spring as the FXML loader's controller factory, so the
+        window's controller is a Spring bean, then applies the stylesheet and shows the window;
+  \item \texttt{stop()} closes Spring once the window has closed, and with it the database.
+\end{itemize}
+Because the controller is a Spring bean, it is handed the task service through its constructor, like any other bean,
+and never creates it itself.
+
+\subsection{Persistence}
+
+Tasks are kept in an SQLite database~\cite{sqlite}, a single file that needs no server and no installation:
+\path{%LOCALAPPDATA%\TaskManager\taskmanager.db}. The folder belongs to the signed-in Windows user and can be written
+without administrator rights, and it is local rather than roaming, so the database is not copied around with the
+user's profile.
+
+The schema is created by Flyway~\cite{flyway} from versioned SQL scripts in
+\path{src/main/resources/db/migration}, which run every time the program starts and apply any script the database
+has not yet seen. Hibernate~\cite{hibernate} maps the task entity onto the table the scripts made, and only checks
+that the two match (\texttt{spring.jpa.hibernate.ddl-auto=validate}); it never changes the schema itself. Spring
+Data JPA~\cite{spring-boot} generates the repository's implementation from its interface.
+
+Two copies of the program may have the same file open, and the connection is set up for it (Listing~\ref{lst:url}).
+The database is opened in SQLite's write-ahead-log mode, which lets one copy read the file while the other writes.
+Every transaction begins by taking the write lock (\texttt{transaction\_mode=IMMEDIATE}), so a copy that has read a
+task saves its change before the other copy can change or delete that task, and a write that finds the lock taken
+waits up to five seconds (\texttt{busy\_timeout=5000}) instead of failing at once. Each copy uses a single
+connection, since SQLite takes one writer at a time anyway. This is what makes the two-copy scenario of
+Section~\ref{sec:problem} safe to run.
+
+\source[firstline=11, lastline=14, language={}]{src/main/resources/application.properties}
+  {The connection, in \texttt{application.properties}}{lst:url}
+
+\subsection{Rules and errors}
+
+Every rule a change must pass is checked in a service: that the title is not blank once trimmed, that the title and
+the description are within their length limits, and that the task still exists. A change the program will not make
+is refused with one exception type, \texttt{Refused}, an unchecked exception whose message is written for the user,
+such as ``A task needs a title, such as "Submit the OEL report".'' The service throws it inside its transaction, so
+nothing of the refused change is saved; the screen catches it and shows the message as it is.
+
+Keeping the rules in the services means that each rule lives in exactly one place, that the screens stay free of
+rules, and that the JUnit tests exercise the same rules the user meets, without opening a window.
+
+The entity's Bean Validation annotations stay as a last check behind the service, but they are not a way to refuse a
+change: Hibernate checks them when it writes the task, which here is when the transaction commits, and a failure
+there arrives as a \texttt{TransactionSystemException} with no message meant for the user. This is why the length limits are checked in
+the service, with their own messages. Before they were, a title of 101 characters got past the service and failed
+only at the commit (Section~\ref{sec:git} shows the change that fixed it).
+An error the service does not expect, which is not a \texttt{Refused}, is caught by the screen, written to the log,
+and shown as one plain sentence; how the user meets each kind of error is described in
+Section~\ref{sec:functionality}.
+
+\subsection{Reasons for the design}
+
+\paragraph*{JavaFX rather than Swing} The brief allows either. JavaFX~\cite{openjfx} keeps the layout of each view in an FXML file
+and its look in a CSS stylesheet, apart from the Java code, and its table and list controls are bound to observable
+lists that redraw themselves when the data changes.
+
+\paragraph*{Spring rather than objects wired by hand} With Spring, services and controllers are handed their
+collaborators instead of constructing them, each service operation runs in a transaction, and the tests start the
+same application context, with the same services and rules, on a database of their own.
+
+\paragraph*{SQLite rather than a text file} A database gives transactions, so a change is saved completely or not at
+all, and it lets two copies of the program share the data safely. SQLite gives this without a server.
+
+\paragraph*{Flyway rather than letting Hibernate create the tables} The schema is versioned together with the code,
+and every database, the user's and each test's, is built by the same scripts. Because Hibernate only validates, a
+mismatch between the code and the schema stops the program when it starts instead of surfacing later as a failed
+save.
+
+\paragraph*{No code generation for accessors} Every constructor, getter and setter is written out by hand rather than
+generated by a library such as Lombok, because the Javadoc tool reads the source: only members that are in the source
+can be documented.

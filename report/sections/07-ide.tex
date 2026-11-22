@@ -1,0 +1,47 @@
+\section{Development in the IDE}\label{sec:ide}
+
+\subsection{Setting up the project}
+
+The project was created as a Maven project with the Maven wrapper and opened in Visual Studio Code as a folder. The
+Java extension reads \texttt{pom.xml}, imports the project with its dependencies, and compiles it in the background;
+errors and warnings appear in the editor as the code is typed. The Java Projects view shows the source and test
+folders, the Maven dependencies and the JDK the project is built against (Fig.~\ref{fig:ide-01-project}).
+
+\screenshotwide{ide-01-project}
+  {The project open in Visual Studio Code: the Explorer tree, the Java Projects view and JDK~25.}
+  {VS Code with the project open: Explorer tree, Java Projects view, JDK 25}
+
+The folder holds the Maven wrapper (\texttt{mvnw}, \texttt{mvnw.cmd} and \path{.mvn/}), \texttt{pom.xml}, the
+IDE's settings in \path{.vscode/}, and the README. The code is under \path{src/main/java}, its resources (the
+settings, the Flyway migration, and the window's FXML, stylesheet and fonts) under \path{src/main/resources}, and the
+tests under \path{src/test/java}. The generated documentation is in \path{docs/javadoc/}, and this report in
+\path{report/}.
+\gap{From the screenshot: the JDK as the Java Projects view names it.}
+
+\subsection{Running the program}
+
+The program is run from the Run and Debug view with the launch configuration ``Task Manager'' in
+\path{.vscode/launch.json}, or with F5. The configuration starts the main class
+\texttt{io.mcs.taskmanager.TaskManagerApplication} on JDK~25 with \texttt{--enable-native-access=ALL-UNNAMED}, and
+shows the program's output in the Debug Console (Fig.~\ref{fig:ide-02-run}). The same program starts from a terminal
+with \texttt{./mvnw spring-boot:run}.
+
+\screenshotwide{ide-02-run}
+  {The program started from the Run and Debug view with the ``Task Manager'' configuration: its window, and the Debug
+   Console.}
+  {The app started from VS Code's Run and Debug (``Task Manager''), window and Debug Console}
+
+\subsection{Debugging}
+
+To follow a save through the program, a breakpoint was set on the first line of \texttt{TaskService.create},
+\texttt{Task task = new Task();}, the program was started with F5, and a task was added with Ctrl+N and
+\emph{Add task}. Execution stopped at the breakpoint, where the Variables view shows the method's arguments
+as the form passed them, and the Call Stack shows the path from the screen's handler down to the service
+(Fig.~\ref{fig:ide-03-debug}).
+% VERIFY in phase 3: the screenshot shows exactly this (arguments in Variables, the handler in the Call Stack).
+
+\screenshotwide{ide-03-debug}
+  {Paused at a breakpoint in the task service's create method, with the Variables and Call Stack views open.}
+  {Paused at a breakpoint in the service's create method, Variables and Call Stack open}
+
+\gap{From the screenshot: what the Variables and Call Stack views show, in one or two sentences.}

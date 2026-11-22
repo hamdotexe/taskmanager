@@ -1,0 +1,157 @@
+% Open-Ended Lab report, IEEE conference format. Build with build.ps1 in this folder; it writes OEL-Report.pdf.
+\documentclass[conference,a4paper]{IEEEtran}
+
+% Times for the text, as IEEE papers are set, and a monospaced face for code and commands. Tectonic's engine is XeTeX,
+% so the fonts are named by file, from its bundle, rather than looked up on the system.
+\usepackage{fontspec}
+\setmainfont{texgyretermes}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, ItalicFont=*-italic,
+  BoldItalicFont=*-bolditalic, Ligatures=TeX]
+\setmonofont{DejaVuSansMono}[Extension=.ttf, BoldFont=*-Bold, ItalicFont=*-Oblique, BoldItalicFont=*-BoldOblique,
+  Scale=0.82]
+
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+\usepackage{microtype}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+% table columns that wrap ragged-right: L{width}, and Y taking what is left in a tabularx
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+% ---------------------------------------------------------------------------------------------------------------
+% Unfinished text. \gap{...} prints in red; build.ps1 counts what is left, and -Final refuses to build while any is.
+% ---------------------------------------------------------------------------------------------------------------
+\definecolor{gap}{RGB}{200,0,0}
+\newcommand{\gap}[1]{\leavevmode{\color{gap}\textbf{[}\textit{#1}\textbf{]}}}
+
+\input{meta}
+
+% The commit table and its counts, written by build.ps1 from git log at every build
+\InputIfFileExists{generated/history}{}{}
+\providecommand{\CommitCount}{\gap{number}}
+\providecommand{\FirstCommitDate}{\gap{date}}
+\providecommand{\LastCommitDate}{\gap{date}}
+\providecommand{\CommitRows}{\multicolumn{4}{l}{\gap{git log was not available to build.ps1}}\\}
+
+% ---------------------------------------------------------------------------------------------------------------
+% Screenshots. \screenshot{name}{caption}{what it must show} sits in one column, \screenshotwide{...} spans both.
+% Each includes screenshots/<name>.png when the file is there, and otherwise draws a framed placeholder naming it,
+% so the report builds at every stage.
+% ---------------------------------------------------------------------------------------------------------------
+\newcommand{\shotpath}[1]{screenshots/#1.png}
+\newcommand{\shotplaceholder}[3]{{%
+  \color{gap}\setlength{\fboxsep}{6pt}%
+  \fbox{\parbox[c][#3][c]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\centering\footnotesize
+    \textbf{Screenshot not yet taken}\\[3pt]
+    \texttt{report/screenshots/#1.png}\\[3pt]
+    \textit{#2}}}}}
+% \shotimage{name}{what it must show}{largest height}{placeholder height}
+\newcommand{\shotimage}[4]{%
+  \IfFileExists{\shotpath{#1}}%
+    {\includegraphics[width=\linewidth,height=#3,keepaspectratio]{\shotpath{#1}}}%
+    {\shotplaceholder{#1}{#2}{#4}}}
+% A placeholder is about as tall as the screenshot will be, so the layout of a draft is close to the final one.
+\newcommand{\screenshot}[3]{%
+  \begin{figure}[!tbp]
+    \centering
+    \shotimage{#1}{#3}{0.4\textheight}{5cm}
+    \caption{#2}\label{fig:#1}
+  \end{figure}}
+\newcommand{\screenshotwide}[3]{%
+  \begin{figure*}[!tp]
+    \centering
+    \shotimage{#1}{#3}{0.45\textheight}{9.5cm}
+    \caption{#2}\label{fig:#1}
+  \end{figure*}}
+
+% Let a page take two wide figures at its top, and two of them make a page of their own, so that the many wide
+% screenshots do not queue up and drift away from the text they belong to.
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\dbltopfraction}{0.9}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.6}
+\renewcommand{\dblfloatpagefraction}{0.6}
+\setcounter{topnumber}{3}
+\setcounter{dbltopnumber}{2}
+\setcounter{totalnumber}{4}
+
+% ---------------------------------------------------------------------------------------------------------------
+% Listings. Transcripts are quoted as they are from ../../evidence (outside the repository); source code is quoted
+% from the repository's own files, so a quote can never drift from the code it shows.
+% ---------------------------------------------------------------------------------------------------------------
+\newcommand{\evidencedir}{../../evidence}
+\newcommand{\srcdir}{..}
+\lstdefinestyle{terminal}{
+  basicstyle=\ttfamily\scriptsize, columns=fixed, keepspaces=true, upquote=true, tabsize=8,
+  breaklines=true, postbreak=\mbox{\textcolor{gray}{$\hookrightarrow$}\space},
+  frame=tb, framesep=3pt, aboveskip=6pt, belowskip=6pt, captionpos=t, abovecaptionskip=0pt, belowcaptionskip=5pt,
+  showstringspaces=false}
+% IEEEtran's caption leaves out the space below it that listings asks for, so the caption sat on the listing's rule
+\makeatletter
+\def\lst@makecaption#1#2{\vskip\abovecaptionskip\@makecaption{#1}{#2}\par\vskip\belowcaptionskip}
+\makeatother
+\lstdefinestyle{java}{
+  style=terminal, language=Java, keywordstyle=\bfseries, commentstyle=\color{black!60}\itshape,
+  morekeywords={record,var}}
+% \evidence[listing options]{file}{caption}
+\newcommand{\evidence}[3][]{%
+  \IfFileExists{\evidencedir/#2}%
+    {\lstinputlisting[style=terminal,caption={#3},label={lst:#2},#1]{\evidencedir/#2}}%
+    {\par\gap{Transcript evidence/#2 not found}\par}}
+% \source[listing options]{path in the repository}{caption}{label}: kept in one piece, never split across columns
+\newcommand{\source}[4][]{%
+  \IfFileExists{\srcdir/#2}%
+    {\par\noindent\begin{minipage}{\linewidth}%
+       \lstinputlisting[style=java,caption={#3},label={#4},#1]{\srcdir/#2}%
+     \end{minipage}\par\medskip}%
+    {\par\gap{Source file #2 not found}\par}}
+
+\begin{document}
+
+\title{Task Manager: A JavaFX Desktop TODO System\\Built with an IDE, Git and Javadoc}
+
+\author{%
+\IEEEauthorblockN{\MemberOneName}
+\IEEEauthorblockA{Reg.\ No.\ \MemberOneReg\\
+\Class\\
+\Institution}
+\and
+\IEEEauthorblockN{\MemberTwoName}
+\IEEEauthorblockA{Reg.\ No.\ \MemberTwoReg\\
+\Class\\
+\Institution}
+\and
+\IEEEauthorblockN{Instructor: \Instructor}
+\IEEEauthorblockA{Lab Engineer: \LabEngineer\\
+\Semester\\
+Submitted \SubmissionDate}}
+
+\IEEEspecialpapernotice{Open-Ended Lab Report, \Course\ (\CourseCode), \Department}
+
+\maketitle
+
+\input{sections/00-abstract}
+\input{sections/01-introduction}
+\input{sections/02-problem}
+\input{sections/03-tools}
+\input{sections/04-design}
+\input{sections/05-data-structures}
+\input{sections/06-functionality}
+\input{sections/07-ide}
+\input{sections/08-git}
+\input{sections/09-javadoc}
+\input{sections/10-testing}
+% every screenshot and table is placed before the conclusion, never after the references
+\clearpage
+\input{sections/11-conclusion}
+\input{sections/references}
+
+\end{document}

@@ -1,0 +1,233 @@
+\section{Testing}\label{sec:testing}
+
+\subsection{Approach}
+
+The program was tested at two levels.
+
+\paragraph*{Automated tests} JUnit tests~\cite{junit}, run through Spring Boot's test support, start the
+application's Spring context without opening a window and call the task service exactly as the screens do, so they
+exercise the same rules the user meets. Most test classes extend \texttt{DatabaseTestBase}, which gives each class a
+new, empty database in a temporary folder: Flyway runs the migration on it and Hibernate checks the entity against
+the table, as when the program starts for the first time. The context is closed after each class, so that its
+connection lets go of the file before JUnit deletes the folder, which Windows would otherwise refuse. Two classes
+start further contexts of their own: \texttt{RestartTest} starts the program's Spring side on a folder, adds a task,
+closes it and starts it again on the same folder, and \texttt{TwoCopiesTest} opens a second context on the same
+database to play the second copy of the program in test case 6.
+
+A seventh class, \texttt{TaskTextTest}, needs neither Spring nor a window: it checks the words the screen puts
+together, such as how a time is written and what an empty list says, by calling \texttt{TaskText} directly. The tests
+are organised in these seven classes:
+\begin{itemize}
+  \item \texttt{BriefTestCasesTest}: the brief's seven test cases, one test each, in the brief's order;
+  \item \texttt{TaskRulesTest}: the rules a task is saved under, beyond the brief's cases;
+  \item \texttt{SearchAndCountsTest}: the search, the status filter and the counts;
+  \item \texttt{TwoCopiesTest}: two copies of the program on one database;
+  \item \texttt{RestartTest}: tasks surviving a restart;
+  \item \texttt{FoundationTest}: the program starting on an empty database;
+  \item \texttt{TaskTextTest}: the words the window shows.
+\end{itemize}
+They run with \texttt{./mvnw test}, and \texttt{./mvnw -q test} was run before every commit.
+
+\paragraph*{Tests in the running program} Every test case of the brief was also carried out by hand in the running
+program, and the screenshots of Section~\ref{sec:functionality} record what it showed. Test case 6 needs two copies of
+the program open on the same database, as explained in Section~\ref{sec:problem}: the first copy opens a task for
+editing, the second deletes it, and the first then saves its change.
+% VERIFY in phase 3: every manual result in the tables is backed by a screenshot or was observed.
+
+\subsection{The brief's test cases}
+
+Table~\ref{tab:brief-tests} lists the seven test cases of the brief with their expected and actual results, the
+steps by which each was carried out in the program, and the JUnit test that checks the same case at the service.
+
+\begin{table*}[!tp]
+  \caption{The brief's test cases}\label{tab:brief-tests}
+  \centering\footnotesize
+  \begin{tabularx}{\textwidth}{@{}L{0.025\textwidth}L{0.12\textwidth}YL{0.17\textwidth}L{0.2\textwidth}L{0.15\textwidth}@{}}
+    \toprule
+    No. & Test case & Steps in the program & Expected result & JUnit test & Actual result \\
+    \midrule
+    1 & Add a valid task
+      & Click \emph{Add task} (or Ctrl+N), type a title and a description, and click \emph{Add task}.
+      & The task is added and appears in the list, Pending.
+      & \texttt{tc1AValidTaskIsAdded}
+      & JUnit: passed. In the program: \gap{from Fig.~\ref{fig:app-03-task-added}} \\
+    2 & Add a task with an empty title
+      & Click \emph{Add task}, leave the title empty (or type only spaces), and click \emph{Add task}.
+      & A validation message is shown, and no task is added.
+      & \texttt{tc2ATaskWithAnEmptyTitle\-IsRefusedWithAMessage}
+      & JUnit: passed. In the program: \gap{from Fig.~\ref{fig:app-04-empty-title}} \\
+    3 & View all tasks
+      & Add several tasks and give them all three statuses from their status menus.
+      & All tasks are displayed, each with its status.
+      & \texttt{tc3AllTasksAreListed}
+      & JUnit: passed. In the program: \gap{from Fig.~\ref{fig:app-05-all-tasks}} \\
+    4 & View an empty list
+      & Start the program on a database with no tasks.
+      & An appropriate message is shown in place of the list.
+      & \texttt{tc4AnEmptyListIsEmpty}
+      & JUnit: passed. In the program: \gap{from Fig.~\ref{fig:app-01-empty-list}} \\
+    5 & Update an existing task
+      & Click a task's \emph{Edit}, change its title, description and status, and click \emph{Save}.
+      & The task's details are updated in the list.
+      & \texttt{tc5AnExistingTaskIsUpdated}
+      & JUnit: passed. In the program: \gap{from Fig.~\ref{fig:app-07-task-updated}} \\
+    6 & Update a non-existing task
+      & With two copies of the program open, click a task's \emph{Edit} in the first, delete the task in the second,
+        then click \emph{Save} in the first.
+      & Handled gracefully: a message says the task no longer exists, the list is refreshed, and no stack trace is
+        shown.
+      & \texttt{tc6UpdatingANonExisting\-TaskIsRefusedGracefully}
+      & JUnit: passed. In the program: \gap{from Fig.~\ref{fig:app-08-update-missing}} \\
+    7 & Delete an existing task
+      & Click a task's \emph{Delete}, then \emph{Delete task} in the confirmation.
+      & The task is removed from the list.
+      & \texttt{tc7AnExistingTaskIsDeleted}
+      & JUnit: passed. In the program: \gap{from Fig.~\ref{fig:app-10-task-deleted}} \\
+    \bottomrule
+  \end{tabularx}
+\end{table*}
+
+\subsection{Further test cases}
+
+Table~\ref{tab:more-tests} lists the test cases we added for the requirements of Section~\ref{sec:problem} beyond the
+brief's six, one row per JUnit test.
+
+\begin{table*}[!tp]
+  \caption{Further test cases}\label{tab:more-tests}
+  \centering\footnotesize
+  \begin{tabularx}{\textwidth}{@{}L{0.025\textwidth}YL{0.28\textwidth}L{0.27\textwidth}L{0.1\textwidth}@{}}
+    \toprule
+    No. & Test case & Expected result & JUnit test & Actual result \\
+    \midrule
+    \multicolumn{5}{@{}l}{\textit{The rules a task is saved under} (\texttt{TaskRulesTest})} \\
+    8 & A title of spaces and tabs, or no title at all
+      & Refused as an empty title; nothing saved.
+      & \texttt{aBlankOrMissingTitleIsRefused} & Passed \\
+    9 & Spaces and line breaks around the title and the description
+      & Saved without them.
+      & \texttt{theTitleAndDescriptionAreTrimmed} & Passed \\
+    10 & No description
+      & Kept as empty, never as null.
+      & \texttt{noDescriptionIsKeptAsEmpty} & Passed \\
+    11 & A title of 100 characters, then of 101
+      & 100 accepted; 101 refused with a message giving the limit and the length.
+      & \texttt{aTitleIsKeptWithinItsLimit} & Passed \\
+    12 & A description of 1000 characters, then of 1001
+      & 1000 accepted; 1001 refused with a message giving the limit and the length.
+      & \texttt{aDescriptionIsKeptWithinItsLimit} & Passed \\
+    13 & An update that breaks a rule
+      & Refused, and the task is left as it was.
+      & \texttt{aRefusedUpdateChangesNothing} & Passed \\
+    14 & A status changed from the list, forward and back
+      & The status changes; the title and description do not.
+      & \texttt{aStatusIsChangedOnItsOwn} & Passed \\
+    15 & A status change with no status
+      & Refused with a message.
+      & \texttt{aStatusChangeWithNoStatus\-IsRefused} & Passed \\
+    16 & Changing the status of, deleting, or opening a task that no longer exists
+      & Each refused with the message that the task no longer exists.
+      & \texttt{aMissingTaskIsRefused\-ByEveryChange} & Passed \\
+    17 & A change with no task chosen
+      & Refused with ``Choose a task in the list first.''
+      & \texttt{noTaskChosenIsRefused} & Passed \\
+    \multicolumn{5}{@{}l}{\textit{Search, filter and counts} (\texttt{SearchAndCountsTest})} \\
+    18 & Text that is in a title or a description, typed in another case
+      & Every task holding it is found.
+      & \texttt{searchFindsTheTextInATitle\-OrDescriptionInAnyCase} & Passed \\
+    19 & No search text, or only spaces
+      & Every task is listed.
+      & \texttt{noTextMatchesEveryTask} & Passed \\
+    20 & Text that is in no task
+      & Nothing is found, and nothing fails.
+      & \texttt{textInNoTaskFindsNothing} & Passed \\
+    21 & Search text holding \texttt{\%} or \texttt{\_}
+      & Matched as typed, not as wildcards.
+      & \texttt{wildcardsAreMatchedAsTyped} & Passed \\
+    22 & A status chosen in the filter
+      & Only the tasks with that status are listed.
+      & \texttt{aStatusFilterListsOnlyThatStatus} & Passed \\
+    23 & Search text and a status together
+      & Only the tasks matching both are listed.
+      & \texttt{textAndAStatusNarrowThe\-ListTogether} & Passed \\
+    24 & Tasks added, moved between statuses and deleted
+      & Each count equals the number of tasks in its status after every change.
+      & \texttt{theCountsFollowEveryChange} & Passed \\
+    25 & No tasks
+      & Every count is 0.
+      & \texttt{anEmptyListCountsNothing} & Passed \\
+    \multicolumn{5}{@{}l}{\textit{Two copies of the program} (\texttt{TwoCopiesTest})} \\
+    26 & The other copy deletes a task; this copy then updates it, changes its status and deletes it
+      & Each refused with the message that the task no longer exists; no error.
+      & \texttt{aTaskDeletedInTheOtherCopy\-IsRefusedHereWithAMessage} & Passed \\
+    27 & One copy adds and changes tasks
+      & The other copy reads the changes at once.
+      & \texttt{eachCopySeesTheOthersChanges} & Passed \\
+    28 & The other copy deletes a task while this copy is saving a change to it
+      & The delete waits for the save, then goes through; neither copy fails.
+      & \texttt{aDeleteInTheOtherCopy\-WaitsWhileThisCopyIsSaving} & Passed \\
+    \multicolumn{5}{@{}l}{\textit{Starting and restarting} (\texttt{RestartTest}, \texttt{FoundationTest})} \\
+    29 & A task added and moved on, then the program closed and started again
+      & The task is there as it was left.
+      & \texttt{tasksSurviveARestart} & Passed \\
+    30 & The program started on an empty database
+      & Spring starts, Flyway makes the table, and Hibernate finds it as the entity expects.
+      & \texttt{startsOnAFreshDatabase} & Passed \\
+    \multicolumn{5}{@{}l}{\textit{The words the window shows, without a window} (\texttt{TaskTextTest})} \\
+    31 & A time today, yesterday, earlier this year and in another year
+      & Written as ``Today, 21:40'', ``Yesterday, 09:05'', ``16 Nov, 14:00'' and ``16 Nov 2025, 14:00''.
+      & \texttt{aTimeIsWrittenTheWayThe\-ListWritesIt} & Passed \\
+    32 & A moment just after midnight in Karachi, still the day before in UTC
+      & Counted on the user's day, not on UTC's.
+      & \texttt{theDayIsTheUsersNotUtcs} & Passed \\
+    33 & A time inside a sentence
+      & ``Today'' and ``Yesterday'' start in lower case; a date stays as it is.
+      & \texttt{aTimeInsideASentence\-StartsInLowerCase} & Passed \\
+    34 & The list's heading
+      & ``All tasks'', or the status filtered by.
+      & \texttt{theHeadingNamesWhatIsShown} & Passed \\
+    35 & A number of tasks
+      & Said with its status, and in the singular for one.
+      & \texttt{aNumberOfTasksIsSaid\-WithItsStatus} & Passed \\
+    36 & The line under the heading
+      & Counts what the filter holds and, with a search, how many of those match.
+      & \texttt{theSummarySaysWhat\-TheListShows} & Passed \\
+    37 & An empty list
+      & Says why: no tasks at all (test case 4), nothing matching the search, or nothing in the status.
+      & \texttt{anEmptyListSaysWhy} & Passed \\
+    38 & The character count in the form
+      & Counted after trimming, as the service counts.
+      & \texttt{charactersAreCounted\-AfterTrimming} & Passed \\
+    \bottomrule
+  \end{tabularx}
+\end{table*}
+
+\subsection{Results}
+
+The last run of \texttt{./mvnw test} before this report was built ran all 38 tests, and every one passed:
+\begin{lstlisting}[style=terminal]
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.110 s -- in io.mcs.taskmanager.FoundationTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.435 s -- in io.mcs.taskmanager.RestartTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.798 s -- in io.mcs.taskmanager.services.BriefTestCasesTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.752 s -- in io.mcs.taskmanager.services.SearchAndCountsTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.528 s -- in io.mcs.taskmanager.services.TaskRulesTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.234 s -- in io.mcs.taskmanager.TwoCopiesTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.037 s -- in io.mcs.taskmanager.ui.TaskTextTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 38, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] BUILD SUCCESS
+[INFO] Total time:  16.443 s
+\end{lstlisting}
+These are the lines of that run that report the tests; Spring's log between them is left out. The whole run, Maven's
+own start and the compilation included, took 16.4 seconds.
+
+\screenshotwide{test-01-junit}
+  {Running the tests with \texttt{./mvnw test}: the totals and BUILD SUCCESS.}
+  {Terminal: ./mvnw test with the totals and BUILD SUCCESS}
+
+Two faults were found and fixed while the program was being built, each together with the tests that now cover it:
+the length limits that only Bean Validation enforced (test cases 11 and 12), and the save overtaken by a delete in
+the other copy (test case 28), which that test reproduced before the fix. Both changes are shown in
+Section~\ref{sec:git}.

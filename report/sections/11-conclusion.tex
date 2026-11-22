@@ -1,0 +1,19 @@
+\section{Conclusion}\label{sec:conclusion}
+
+We built Task Manager, a JavaFX desktop application over Spring Boot services that adds, lists, updates and deletes
+tasks, sets their status, refuses a task without a title, and keeps its tasks in a local SQLite file. The rules live
+in one place, the services, where the JUnit tests check them on a fresh database, and the window only shows what the
+services return or refuse. All 38 tests pass, the Javadoc HTML is generated with every check on and not one warning,
+and the history records the work as \CommitCount\ commits, each with a message that says what changed and why.
+
+The lab's other half was the workflow. Working in an IDE on the JDK meant running and debugging the program where it
+was written. Committing each piece of work on its own, after reading its diff and running the tests, left a history
+that explains how the program was built. Writing a Javadoc comment for every member, private ones included, made us
+state what each one is for, and the generated pages show the design as a reader meets it.
+
+Not everything worked the first time. A title over its limit at first reached the database's own checks instead of a
+message, and a save could be overtaken by a delete in a second copy of the program; both were found, reproduced by a
+test and fixed, as Section~\ref{sec:git} shows. Two limits remain, both deliberate for a single-user program: when two
+copies edit the same task that still exists, the last save wins without a warning, and the search ignores case only
+for the letters A to Z. An optimistic lock on the task, and a search that folds the case of every letter, would be the
+next steps.

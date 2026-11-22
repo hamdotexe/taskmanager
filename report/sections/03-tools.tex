@@ -1,0 +1,57 @@
+\section{Tools and Environment}\label{sec:tools}
+
+Table~\ref{tab:tools} lists the tools and libraries with the versions used. The versions of the development tools were
+read from the tools themselves (\texttt{java -version}, \texttt{git --version}, \texttt{code --version}); those of the
+libraries come from the project's \texttt{pom.xml} and from the versions Maven resolved for it.
+
+\begin{table}[!t]
+  \caption{Tools and libraries}\label{tab:tools}
+  \centering\footnotesize
+  \begin{tabularx}{\linewidth}{@{}L{0.33\linewidth}L{0.17\linewidth}Y@{}}
+    \toprule
+    Tool or library & Version & Used for \\
+    \midrule
+    Windows 11 Pro & 10.0.26300 & Operating system \\
+    Oracle JDK & 25.0.1 LTS & Compiling, running and debugging; the \texttt{javadoc} tool \\
+    Visual Studio Code & 1.147.0 & IDE \\
+    Extension Pack for Java & 0.31.2 & Java support in the IDE (below) \\
+    Apache Maven, run by the Maven wrapper 3.3.4 & 3.10.0 & Build, dependencies, tests, Javadoc \\
+    Git for Windows & 2.54.0 & Version control \\
+    GitHub & --- & Remote repository \\
+    Spring Boot & 4.1.2 & Dependency injection, transactions, configuration \\
+    JavaFX & 27.0.1 & Graphical user interface (FXML and CSS) \\
+    Hibernate ORM & 7.4.13 & Mapping the task onto its table \\
+    SQLite JDBC driver & 3.53.4.0 & The database file \\
+    Flyway & 12.4.0 & Database schema migrations \\
+    JUnit Jupiter & 6.0.3 & Automated tests \\
+    Maven Javadoc Plugin & 3.12.0 & Generating the HTML documentation \\
+    LaTeX (IEEEtran), Tectonic & 0.15.0 & Typesetting this report \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{The IDE}
+
+The brief names NetBeans, IntelliJ IDEA and Eclipse as example IDEs. We used Visual Studio Code with Microsoft's
+Extension Pack for Java~\cite{vscode-java}. Its language support (Language Support for Java by Red Hat, 1.58.0) is
+built on the Eclipse JDT Language Server, so the code is compiled and checked as it is typed by the same Java tooling
+Eclipse uses. The pack also brings the Debugger for Java (0.60.0) for breakpoints, stepping and inspecting variables,
+the Test Runner for Java (0.47.0), Maven for Java (0.46.0), and the Project Manager for Java (0.27.7), whose Java
+Projects view shows the project's source folders, dependencies and JDK. How the project was set up, run and debugged
+in the IDE is described in Section~\ref{sec:ide}.
+
+\subsection{The JDK and the build}
+
+The project targets Java~25 (\texttt{java.version} in \texttt{pom.xml}) and was built and run on Oracle JDK~25.0.1,
+with \texttt{JAVA\_HOME} pointing at it. It is a Maven project with the Maven wrapper checked in: \texttt{./mvnw}
+downloads Maven~3.10.0 on first use, so the project builds the same way from the IDE, from a terminal, and on another
+computer that has only the JDK. The commands used throughout are:
+\begin{itemize}
+  \item \texttt{./mvnw spring-boot:run}: start the application;
+  \item \texttt{./mvnw test}: run the JUnit tests;
+  \item \texttt{./mvnw javadoc:javadoc}: generate the HTML documentation.
+\end{itemize}
+JavaFX and the SQLite driver both load native libraries, which Java~25 warns about unless native access is allowed.
+The \texttt{pom.xml} therefore passes \texttt{--enable-native-access=ALL-UNNAMED} to the application when Maven starts
+it and to the tests, and writes the same permission into the jar's manifest; the IDE's launch configuration passes
+it too.

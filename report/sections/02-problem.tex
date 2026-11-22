@@ -1,0 +1,54 @@
+\section{Problem Description}\label{sec:problem}
+
+\subsection{Problem statement}
+
+The brief asks for a Java Swing or JavaFX task management (TODO) system in which each task has a title, a description
+and a status. We chose JavaFX; the reasons are given in Section~\ref{sec:design}.
+
+\subsection{Functional requirements}
+
+The brief sets six functional requirements, numbered here so that the test cases can refer to them:
+\begin{enumerate}
+  \renewcommand{\labelenumi}{FR\arabic{enumi}}
+  \item add a task, with a title and a description;
+  \item view all tasks;
+  \item update a task;
+  \item delete a task;
+  \item set a task's status to Pending, In Progress or Completed;
+  \item validate the input, so that no task has an empty title, and handle errors.
+\end{enumerate}
+
+\subsection{Requirements we added}
+
+A task list that is lost when the program closes is of little use, and some of the brief's test cases cannot be
+shown at all without a little more than the six requirements. We therefore added the following, and nothing beyond
+it:
+\begin{itemize}
+  \item tasks are kept in a database file and survive a restart;
+  \item the list can be searched by title or description, and filtered by status;
+  \item the number of tasks in each status is always in view;
+  \item a task's status can be changed straight from the list, as well as in the edit form;
+  \item each task shows when it was created and when it was last updated;
+  \item the title and the description have length limits, and both are trimmed of surrounding spaces, so that a
+        title of spaces only counts as empty;
+  \item deleting a task asks for confirmation first;
+  \item adding, editing, deleting, searching and refreshing have keyboard shortcuts;
+  \item a task that no longer exists is handled gracefully, as explained below.
+\end{itemize}
+
+\subsection{A task that no longer exists}
+
+One test case in the brief needs a word of explanation: updating a non-existing task must be handled gracefully. In a
+graphical program the list only offers tasks that exist, so a task can only be missing if something else removed it
+after the list was shown. With the tasks in a database file, that something can be a second copy of the program open
+on the same file. If one copy deletes a task while the other still shows it, and the second copy then saves a change
+to it, deletes it or changes its status, the program must say plainly that the task no longer exists and refresh its
+list, without a stack trace. This makes the test case reproducible by hand with two copies of the program open, and
+Section~\ref{sec:testing} does exactly that.
+
+\subsection{Constraints}
+
+The program is a single-user desktop application for Windows. It needs no server and no installation beyond the JDK:
+its data is a single SQLite file in the signed-in user's local application data folder,
+\path{%LOCALAPPDATA%\TaskManager\taskmanager.db}. Every error the user can cause is answered with a message in plain
+words; none reaches the user as a stack trace.

@@ -1,0 +1,109 @@
+\section{Data Structures and Algorithms}\label{sec:dsa}
+
+This section describes how a task is represented, in the database and in memory, and the algorithms behind the
+program's operations.
+
+\subsection{The task}
+
+A task is an instance of the JPA entity \texttt{Task} in package \texttt{entities}, mapped onto the table
+\texttt{tasks}. Table~\ref{tab:task} lists its fields. The two length limits are public constants of the class,
+\texttt{Task.MAX\_TITLE\_CHARACTERS} (100) and \texttt{Task.MAX\_DESCRIPTION\_CHARACTERS} (1000), so that the
+service and the entity's column definitions use the same numbers. The fields also carry Bean Validation
+annotations (\texttt{@NotBlank}, \texttt{@NotNull}, \texttt{@Size}); they are not where the rules are enforced, which
+is the service, but a last check that stops a task that slipped past the service from reaching the database.
+
+\begin{table}[!t]
+  \caption{The fields of a task}\label{tab:task}
+  \centering\footnotesize
+  \begin{tabularx}{\linewidth}{@{}L{0.2\linewidth}L{0.16\linewidth}L{0.25\linewidth}Y@{}}
+    \toprule
+    Field & Java type & Column & Rule \\
+    \midrule
+    \texttt{id} & \texttt{UUID} & \texttt{id char(36)}, primary key & Given by Hibernate on the first save; never
+      changed, so it has no setter. \\
+    \texttt{title} & \texttt{String} & \texttt{title varchar(100)} & Not blank; trimmed; at most 100 characters. \\
+    \texttt{description} & \texttt{String} & \texttt{description varchar(1000)} & Trimmed; at most 1000
+      characters; empty, never null, when there is none. \\
+    \texttt{status} & \texttt{TaskStatus} & \texttt{status varchar(16)} & A new task is Pending. \\
+    \texttt{createdAt} & \texttt{Instant} & \texttt{created\_at timestamp} & Set when the task is added; never
+      written again. \\
+    \texttt{updatedAt} & \texttt{Instant} & \texttt{updated\_at timestamp} & Equal to \texttt{createdAt} at first;
+      moved on by every update and status change. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Every column is \texttt{not null}. The identifier is a random UUID rather than a counter, stored as 36 characters,
+and the two times are \texttt{Instant}s, moments in UTC that the screen shows in the computer's own time zone.
+
+\subsection{The status}
+
+The status is the enum \texttt{TaskStatus} with three constants, \texttt{PENDING}, \texttt{IN\_PROGRESS} and
+\texttt{COMPLETED}. Each carries the words the screen shows for it (``Pending'', ``In Progress'', ``Completed''),
+returned by \texttt{getLabel()} and by \texttt{toString()}, so a list or a choice box of statuses shows the words
+without any conversion. The database keeps the constant's name (\texttt{@Enumerated(EnumType.STRING)}), not its
+position, so reordering the constants or changing a label never changes what a saved task means.
+
+\subsection{The table}
+
+The table is created by the first Flyway migration, Listing~\ref{lst:v1}, which is the whole schema of the program.
+
+\source[language=SQL, morekeywords={char,varchar,timestamp}]{src/main/resources/db/migration/V1__tasks.sql}
+  {The migration \texttt{V1\_\_tasks.sql}}{lst:v1}
+
+\subsection{The counts}
+
+The number of tasks in each status is returned by the service as a record,
+\texttt{TaskCounts(long pending, long inProgress, long completed)}, with two methods of its own: \texttt{total()}, the
+number of tasks in all, and \texttt{of(TaskStatus)}, the count for one status, which lets the screen go through
+\texttt{TaskStatus.values()} instead of naming each status.
+
+\subsection{Collections in the interface}
+
+The window shows the tasks in a JavaFX \texttt{ListView<Task>}, whose rows are drawn by a cell class of the
+program's own, \texttt{TaskCell}. Its items are an observable list, which the list redraws whenever it changes. The
+screen keeps no copy of the tasks to filter or count itself: after every change, and whenever the search text or the
+filter changes, it asks the service again for the matching tasks and the counts, and replaces the list's items with
+the answer, choosing the same task again if it is still listed. What the window shows is therefore always what is
+saved, including what a second copy of the program has changed, once the list is read again. Times are shown in the
+computer's own time zone, as ``Today, 21:40'', ``Yesterday, 09:05'', ``16 Nov, 14:00'' or, in another year,
+``16 Nov 2025, 14:00''.
+
+\subsection{Algorithms}
+
+\paragraph*{Validation} Every save of a title and a description goes through one private method of the service,
+\texttt{set}. It trims both texts with \texttt{String.strip()}, which removes spaces, tabs and line breaks around
+them, and turns a missing description into an empty one. It then refuses, in this order, an empty title, a title over
+100 characters and a description over 1000, each with its own message. The limits are counted after trimming, so
+spaces typed around a text never push it over. An update checks before this that a task was chosen and still exists,
+and after it that a status was given.
+
+\paragraph*{Listing and ordering} The list is every task, newest first. The repository declares the method
+\texttt{findAllByOrderByCreatedAtDesc()}, and Spring Data derives the query from its name.
+
+\paragraph*{Search and filter} Searching and filtering are one database query (Listing~\ref{lst:search}). The service
+trims the search text, lowers its case, and wraps it as a \texttt{like} pattern, \texttt{\%text\%}, matched against
+the lowered title and the lowered description. The characters \texttt{\%} and \texttt{\_}, which are wildcards in a
+\texttt{like} pattern, and \texttt{!}, chosen as the escape character, are escaped first, so that every character the
+user types is matched as it is. A blank search becomes \texttt{\%\%}, which matches every task, and a status of
+\texttt{null} means every status, so the same query serves the plain list, a search, a filter and both together.
+Case is ignored only for the letters A to Z, because SQLite's \texttt{lower()} function folds ASCII letters only.
+
+\source[firstline=28, lastline=42, gobble=4]{src/main/java/io/mcs/taskmanager/repositories/TaskRepository.java}
+  {The search query in \texttt{TaskRepository}}{lst:search}
+
+\paragraph*{Counts per status} The service counts each status with the derived query
+\texttt{countByStatus(TaskStatus)}, three queries in one read-only transaction. The counts are always over every task,
+whatever the search or filter shows.
+
+\paragraph*{A task that no longer exists} Every operation on one task (opening it, updating it, changing its status
+and deleting it) first looks it up through one private method, \texttt{find}. A missing identifier is refused with ``Choose a task in
+the list first.'', and a task the database no longer has with ``This task no longer exists: it may have been deleted
+in another copy of the Task Manager.'' Because each service method is one transaction and the
+database begins every transaction by taking its write lock (\texttt{transaction\_mode=IMMEDIATE} in the connection
+URL), the other copy of the program cannot delete the task between this lookup and the save that follows it; its
+delete waits until the save is done. How this was found and fixed is told in Section~\ref{sec:git}.
+
+\paragraph*{Cost} With $n$ tasks, listing, searching and counting each read the whole table, $O(n)$: a pattern that
+starts with \texttt{\%} cannot use an index, and the list is short enough that none is needed. Finding one task by its
+identifier uses the index SQLite keeps on the primary key, $O(\log n)$.

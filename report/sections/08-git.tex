@@ -1,0 +1,160 @@
+\section{Version Control with Git}\label{sec:git}
+
+The project's history is kept in a Git repository~\cite{progit} and published on GitHub at
+\RepoURL, branch \texttt{main}. All commands were run in a terminal in the project folder.
+
+\subsection{Setting up the repository}
+
+The repository was created as soon as the project skeleton existed: the Maven wrapper, \texttt{pom.xml}, the
+application class and the IDE's launch configuration. The steps were:
+\begin{enumerate}
+  \item \texttt{git init -b main}: create an empty repository whose first branch is \texttt{main};
+  \item \texttt{git status}: check which files Git sees, all of them untracked at this point;
+  \item \texttt{git add .}: stage the whole skeleton for the first commit, the build output and the local database
+        being kept out by \texttt{.gitignore};
+  \item \texttt{git status}: check that exactly the intended files are staged;
+  \item \texttt{git commit}: record the initial commit;
+  \item \texttt{git remote add origin} with the GitHub address, then \texttt{git remote -v} to check it;
+  \item \texttt{git push -u origin main}: publish the branch and make \texttt{origin/main} its upstream.
+\end{enumerate}
+Listing~\ref{lst:01-initial-setup.txt} is the transcript of the first four steps as they ran.
+
+\evidence[firstline=1, lastline=52]{01-initial-setup.txt}
+  {Creating the repository and staging the skeleton}
+
+The warnings printed by \texttt{git add} are Git for Windows noting that the files, written with Unix line endings,
+will be checked out with Windows ones; they do not affect what is committed.
+
+The last three steps are seen best in the repository as it is now (Listing~\ref{lst:remote}): the first commit
+of the history is still the initial one, \texttt{origin} points at the GitHub repository, and \texttt{main} tracks
+\texttt{origin/main}, with nothing committed that has not been pushed. (The untracked \texttt{report/} folder is
+this report, before its own commit.)
+
+\begin{lstlisting}[style=terminal, caption={The initial commit, the remote and the tracking branch, in the live
+repository}, label={lst:remote}]
+$ git log --reverse --format="%h %ad %s" --date=short | head -n 1
+a0bb38c 2026-11-22 Initial commit: Spring Boot and JavaFX project skeleton on Maven
+
+$ git remote -v
+origin	https://github.com/hamdotexe/taskmanager.git (fetch)
+origin	https://github.com/hamdotexe/taskmanager.git (push)
+
+$ git status -sb
+## main...origin/main
+?? report/
+\end{lstlisting}
+
+\subsection{The workflow for each change}
+
+Each piece of work, such as a new rule in the service, a screen, or a fix, was committed on its own, in this order:
+\begin{enumerate}
+  \item \texttt{git status}: see which files the change touched;
+  \item \texttt{git diff}: read every changed line before staging it;
+  \item \texttt{./mvnw -q test}: run the tests; nothing is committed unless they pass;
+  \item \texttt{git add} followed by the files of the change, named one by one: staging by explicit path keeps
+        unrelated edits and generated files out of the commit;
+  \item \texttt{git commit -m "Area: what changed and why"}, with a second \texttt{-m} for a body when the reason
+        needs more than a line;
+  \item \texttt{git push}: publish the commit to \texttt{origin/main}.
+\end{enumerate}
+The history as a whole is reviewed with \texttt{git log --oneline --graph}, one line per commit.
+
+\subsection{Commit messages}
+
+Every message starts with the area of the program it changes, followed by what changed and, where it is not obvious,
+why: for example ``Tasks: change a task's status on its own, as the list will'' or ``Test: tasks survive a restart of
+the app''. A message that names its area makes the one-line log readable as a list of the program's parts as they
+were built. When the reason needs more than a line, a body after a blank line gives it, as in this commit from the
+history:
+\begin{lstlisting}[style=terminal]
+Tasks: trim the title and description, and refuse either over its limit
+
+A title over 100 characters or a description over 1000 got past the service
+and failed Bean Validation at commit, so the screen would have had a
+TransactionSystemException to show. The service now refuses them with the
+limit and the length typed, counted after trimming, so spaces around a text
+never push it over. No description is kept as empty.
+
+TaskRulesTest covers blank and missing titles, trimming, both limits at and
+past the edge, a refused update leaving the task as it was, and a change
+with no task chosen.
+\end{lstlisting}
+
+\subsection{Recording revisions: status, diff and log}
+
+Three times during development, for a new rule and for two bug fixes, the output of \texttt{git status} and
+\texttt{git diff} was saved with its commands just before the change was staged. In each, \texttt{git status} also
+lists the \texttt{report/} folder as untracked: this report was being written at the same time and was committed on
+its own.
+
+\paragraph*{A new rule} A title over 100 characters or a description over 1000 used to get past the service and fail
+Bean Validation at the commit, as described in Section~\ref{sec:design}. Listing~\ref{lst:02-status-diff-title-limits.txt}
+shows the change that moved both limits into the service: \texttt{git status} lists the modified
+\texttt{TaskService.java} and the new, still untracked test class \texttt{TaskRulesTest.java}, and \texttt{git diff}
+shows the method \texttt{set} now trimming both texts and refusing either one over its limit, with the length typed in
+the message.
+
+\evidence[linerange={1-22,68-112}]{02-status-diff-title-limits.txt}
+  {\texttt{git status} and \texttt{git diff} before the length limits were committed (the hunks that change only
+   comments, lines 23--67 of the transcript, are left out)}
+
+\paragraph*{A bug fix} With two copies of the program open on one file, a copy that had read a task could not save it
+once the other copy had written in between: SQLite refused the write at once with \texttt{SQLITE\_BUSY\_SNAPSHOT},
+the busy timeout did not help, and the save failed with a raw \texttt{CannotAcquireLockException} rather than a
+message.
+A new test, \texttt{TwoCopiesTest}, reproduced it with a second Spring context on the same database playing the other
+copy. The fix is one setting in the connection URL (Listing~\ref{lst:03-status-diff-two-copies-fix.txt}): every
+transaction now takes the write lock as it begins, so the other copy's change waits for this one to finish and then
+goes through.
+
+\evidence{03-status-diff-two-copies-fix.txt}
+  {\texttt{git status} and \texttt{git diff} before the fix for two copies was committed}
+
+\paragraph*{A bug fix in the window} When a dialog opened, the keyboard did not go to its first field: Ctrl+N
+followed by typing lost the first keys, and the focus stayed in the list. The dimmed layer the dialog sits on is a
+scroll pane, which puts its content in the window only once its skin is made, on the next pass of the stylesheet, so
+asking the title field for the focus before then did nothing. The fix applies the stylesheet first
+(Listing~\ref{lst:04-status-diff-dialog-focus-fix.txt}). This time \texttt{git diff} was given the one file of the
+fix; \texttt{git status} shows the other files then changed, which went into commits of their own.
+
+\evidence{04-status-diff-dialog-focus-fix.txt}
+  {\texttt{git status} and \texttt{git diff} before the fix for the dialog's focus was committed}
+
+Figures~\ref{fig:git-01-status-diff} to~\ref{fig:git-04-github} show the same workflow in the terminal and on GitHub:
+a change inspected with \texttt{git status} and \texttt{git diff}, then staged, committed and pushed, the whole
+history as a graph, and the commits as GitHub lists them.
+
+\screenshotwide{git-01-status-diff}
+  {\texttt{git status} and \texttt{git diff} on an uncommitted change.}
+  {Terminal: git status and git diff on a real uncommitted change}
+
+\screenshotwide{git-02-add-commit-push}
+  {The same change staged, committed and pushed with \texttt{git add}, \texttt{git commit} and \texttt{git push}.}
+  {Terminal: git add, git commit, git push of that change}
+
+\screenshotwide{git-03-log}
+  {The whole history with \texttt{git log --oneline --graph}.}
+  {Terminal: \texttt{git log --oneline --graph} of the whole history}
+
+\screenshotwide{git-04-github}
+  {The repository's commits on GitHub.}
+  {The repository's commits page on GitHub}
+
+\subsection{The history}
+
+When this report was built, the history had \CommitCount\ commits, made between \FirstCommitDate\ and
+\LastCommitDate.
+Table~\ref{tab:history} lists them oldest first, with the first line of each message, as
+\texttt{git log --reverse} prints them.
+
+\begin{table*}[!tp]
+  \caption{The commit history}\label{tab:history}
+  \centering\footnotesize
+  \begin{tabularx}{\textwidth}{@{}rlL{0.15\textwidth}Y@{}}
+    \toprule
+    No. & Commit & Date & Message (first line) \\
+    \midrule
+    \CommitRows
+    \bottomrule
+  \end{tabularx}
+\end{table*}

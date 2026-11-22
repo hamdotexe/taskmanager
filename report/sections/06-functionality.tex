@@ -1,0 +1,160 @@
+\section{Program Functionality}\label{sec:functionality}
+
+This section walks through the program as the user meets it, one function at a time, with a screenshot of each. The
+screenshots of the brief's test cases are referred to again in Section~\ref{sec:testing}.
+
+The program has a single window (Fig.~\ref{fig:app-05-all-tasks}). Its header takes the place of the system's title
+bar and carries the program's mark and name, with the system's minimise, maximise and close buttons drawn on it. A
+sidebar on the left lists the filters under \emph{Tasks}: All tasks, Pending, In Progress and Completed, each with the
+number of tasks it holds, so that the counts per status are always in view. At the sidebar's foot is the list of
+keyboard shortcuts. The rest of the window is the list: a heading (``All tasks'', or the status the list is filtered
+by) with a line under it saying what the list shows, such as ``4 tasks, newest first.'', the \emph{Refresh} and
+\emph{Add task} buttons, the search field (``Search titles and descriptions''), and the tasks, one row each, under the
+columns Task, Status and Updated. The row under the pointer, and the chosen row, show an \emph{Edit} and a
+\emph{Delete} button at their end. Forms and confirmations open as dialogs over the window, which is dimmed behind
+them. A notice the program has to give, such as a task that no longer exists, appears as a red bar over the list,
+with a \emph{Dismiss} button.
+
+\subsection{An empty list}
+
+When there are no tasks, the list is replaced by a message: ``No tasks yet'', with the hint ``Add your first with Add
+task or Ctrl+N, such as “Submit the OEL report”.'' (Fig.~\ref{fig:app-01-empty-list}). A search or a filter that
+matches nothing says so in the same place: ``Nothing matches “report”'' for a search, or ``No pending tasks'' and the
+like for an empty status.
+
+\screenshotwide{app-01-empty-list}
+  {The window with no tasks: the list shows a message instead of an empty table (test case 4).}
+  {Test case 4: the empty list and its message}
+
+\subsection{Adding a task}
+
+The \emph{Add task} button, or Ctrl+N, opens the form for a new task (Fig.~\ref{fig:app-02-add-form}). It has a
+\emph{Title} and a \emph{Description} field, each with a count of its characters against its limit, ``12 / 100'' for
+example, counted after trimming as the service counts them and turning red past the limit, and the note ``It starts
+as Pending; change its status from the list as the work goes.'' The \emph{Add task} button in the form saves it (as do
+Enter in the title and Ctrl+Enter anywhere in the form), and \emph{Cancel} or Esc closes the form without saving. The new task appears at
+the top of the list, chosen (Fig.~\ref{fig:app-03-task-added}).
+
+\screenshot{app-02-add-form}
+  {The form for a new task, filled in.}
+  {The add form filled in}
+
+\screenshotwide{app-03-task-added}
+  {The new task in the list (test case 1).}
+  {Test case 1: the new task in the list}
+
+A title left empty, or made only of spaces, is refused by the service, and its message is shown in the form under the
+fields: ``A task needs a title, such as "Submit the OEL report".'' (Fig.~\ref{fig:app-04-empty-title}). The form stays
+open with what was typed, so the user can correct it. A title over 100 characters or a description over 1000 is
+refused the same way, with a message giving the limit and the length typed.
+
+\screenshot{app-04-empty-title}
+  {Saving a task with an empty title is refused with a message (test case 2).}
+  {Test case 2: the validation message}
+
+\subsection{Viewing all tasks}
+
+All tasks are listed newest first (Fig.~\ref{fig:app-05-all-tasks}). Each row shows the title, the first line of the
+description, the status, when the task was last updated and when it was added, the times written as ``Today, 21:40'',
+``Yesterday, 09:05'' or a date. The status is a coloured pill, grey for Pending, blue for In Progress and green
+for Completed, and a completed task's title is greyed and struck through.
+
+\screenshotwide{app-05-all-tasks}
+  {Several tasks, in all three statuses, with the count of each (test case 3).}
+  {Test case 3: several tasks, all three statuses}
+
+\subsection{Updating a task}
+
+The row's \emph{Edit} button, Enter on the chosen row, a double click or the row's right-click menu opens the edit
+form on the task as it is saved now (Fig.~\ref{fig:app-06-edit-form}). It has the same two fields and a \emph{Status}
+choice of Pending, In Progress and Completed, and notes when the task was added and last changed. \emph{Save} saves
+all three at once
+(Fig.~\ref{fig:app-07-task-updated}).
+
+\screenshot{app-06-edit-form}
+  {The edit form on an existing task.}
+  {The edit form on an existing task}
+
+\screenshotwide{app-07-task-updated}
+  {The task with its changed details in the list (test case 5).}
+  {Test case 5: the changed details in the list}
+
+If the task has been deleted in a second copy of the program while the form was open, saving closes the form, shows
+the service's message over the list, ``This task no longer exists: it may have been deleted in another copy of the
+Task Manager.'', and reads the list again, which no longer has the task (Fig.~\ref{fig:app-08-update-missing}). The
+same happens when such a task is opened for editing, deleted or given a new status.
+
+\screenshotwide{app-08-update-missing}
+  {Saving a change to a task that a second copy of the program has deleted: the program says the task no longer
+   exists and refreshes its list (test case 6).}
+  {Test case 6: the message for a task that no longer exists}
+
+\subsection{Deleting a task}
+
+The row's \emph{Delete} button, the Delete key on the chosen row, or \emph{Delete task} in the edit form asks first:
+a dialog titled ``Delete this task?'' says ``“Submit the OEL report” will be deleted for good. This can't be
+undone.'', naming the task, with \emph{Cancel} and \emph{Delete task} buttons (Fig.~\ref{fig:app-09-delete-confirm}). Only \emph{Delete task} deletes it (Fig.~\ref{fig:app-10-task-deleted}).
+
+\screenshot{app-09-delete-confirm}
+  {Deleting a task asks for confirmation first.}
+  {The delete confirmation}
+
+\screenshotwide{app-10-task-deleted}
+  {The list after the task was deleted (test case 7).}
+  {Test case 7: the list without it}
+
+\subsection{Changing the status from the list}
+
+The status in each row is a button: it opens a menu of the three statuses with the task's own ticked, and choosing
+another moves the task to it at once, without opening the form. The counts in the sidebar follow
+(Fig.~\ref{fig:app-11-status-change}).
+
+\screenshotwide{app-11-status-change}
+  {A task's status changed straight from the list; the counts follow.}
+  {A status changed from the list, counts updated}
+
+\subsection{Searching and filtering}
+
+Typing in the search field narrows the list, as each character is typed, to the tasks whose title or description
+holds the text, whatever its case; Ctrl+F goes to the field, Esc clears it, and the down arrow moves into the list. Choosing a filter in the sidebar shows
+one status only, and the two combine: the line under the heading then says, for example, ``2 of 5 pending tasks
+match “report”.'' (Fig.~\ref{fig:app-12-search-filter}).
+
+\screenshotwide{app-12-search-filter}
+  {The search box and the status filter narrowing the list.}
+  {Search and status filter narrowing the list}
+
+\subsection{Keyboard shortcuts}
+
+Table~\ref{tab:shortcuts} lists the keyboard shortcuts. The sidebar shows the five that work in the window: add,
+edit, delete, search and refresh.
+
+\begin{table}[!t]
+  \caption{Keyboard shortcuts}\label{tab:shortcuts}
+  \centering\footnotesize
+  \begin{tabularx}{\linewidth}{@{}YL{0.2\linewidth}L{0.36\linewidth}@{}}
+    \toprule
+    Action & Key & Where \\
+    \midrule
+    Add a task & Ctrl+N & Anywhere in the window \\
+    Edit the chosen task & Enter & In the list \\
+    Delete the chosen task & Delete & In the list \\
+    Go to the search & Ctrl+F & Anywhere in the window \\
+    Clear the search & Esc & In the search field \\
+    Read the list again & F5 & Anywhere in the window \\
+    Save the form & Ctrl+Enter & Anywhere in a form \\
+    Save the form & Enter & In the title field \\
+    Close a form without saving & Esc & In a form \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Error handling}
+
+The user meets three kinds of error, and none of them as a stack trace. A change the service refuses shows the
+service's own message: in the form, under its fields, for a form, or over the list for a change made from the list. A
+task that no longer exists is reported over the list, which is then read again. Any other failure, which nobody
+expects, such as the database not answering, is written to the log and shown over the list as one plain sentence:
+``Something went wrong, and nothing was changed. Try again, or restart the Task Manager if it keeps happening.'' The
+same holds for an exception nobody caught on the window's thread, which the program hands to the window instead of
+letting it print.
